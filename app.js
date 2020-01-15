@@ -12,7 +12,7 @@ const http = require('http').Server(app);
 
 require("./DbConnection");
 //Route Define
-//var Driver = require('./routes/driver');
+var admin = require('./routes/admin');
 
 app.use(bodyParser.json({limit: '5000mb'}));
 app.use(bodyParser.urlencoded({limit: '5000mb', extended: true, parameterLimit: 1000000}));
@@ -25,7 +25,7 @@ app.use(cors());
      res.sendFile("index.html")
  })
 
-//app.use('/api', Driver);
+app.use('/api', admin);
 
 
 
