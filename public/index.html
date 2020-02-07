@@ -8,22 +8,38 @@
 </head>
 <body>
     <h1>Welcome To Dustbin...!!</h1>
+    <div id="datalist"></div>
 
-
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://192.168.0.150:3002/socket.io/socket.io.js"></script>
 <script>
-  const socket = io('http://3.6.124.196:3002');
+  const socket = io('http://192.168.0.150:3002');
 
    socket.on('connect',function(data) {
         console.log("Server is connected");
        // console.log(JSON.stringify(data))
     });
-    socket.on('dustbinpickup',function(dataset) {
-        console.log(dataset);
-        console.log(dataset[0].data[0].data_percentage);
-       // console.log(JSON.stringify(data))
-    });
+   // socket.emit('welcomeMessage',"Welcome To Server");
+  
+    socket.on('dustbinpickup1', (dataSet)=>{
+      $("#datalist").html('');
+      console.log(dataSet);
+      if(dataSet.length!=0){
+       
+        for(var x=0;x<dataSet.length;x++){
+        
+          for(var xx=0;xx<dataSet[x].data.length;xx++){
+          
+            $("#datalist").append('<div>GSM:'+dataSet[x].data[xx].gsm_moblie_number+' <span>DataPercentage:'+dataSet[x].data[xx].data_percentage+'</span></div>');
 
+          
+          }
+        }
+        
+      }
+      
+    });
+  
 </script>
 </body>
 </html>

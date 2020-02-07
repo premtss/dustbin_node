@@ -199,19 +199,14 @@ io.on('connection', function(socket) {
        console.log('A user disconnected');
     });
 
-      //  const io = req.app.get('socketio');
-      dustbinCtrl.dustbinfiltertype(result => { 
-        var dataa=[];
-        for(var i=0; i<result.length; i++){ 
-            googleMap(result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,call=>{                     
-              dataa.push(call);
-            });        
-        }
-         setTimeout(function () { 
-              const grouping = _.groupBy(dataa, function(element){
+  setInterval(function () { 
+
+    dustbinCtrl.dustbinfiltertype(result => { 
+
+              const grouping = _.groupBy(result, function(element){
                 return element.warehouseaddress;
              });
-            const dustbinData = _.map(grouping, (items, warehouse) => ({
+             const  dustbinData = _.map(grouping, (items, warehouse) => ({
                     warehouseaddress: warehouse,
                     warehousename:items[0].wname,
                     NoofDustbin: items.length,
@@ -219,17 +214,11 @@ io.on('connection', function(socket) {
                     WareHouseId:items[0].warehouse_id,
                     data: items
             }));
-
-            socket.emit('dustbinpickup', dustbinData);
-           
-          },1000) ;
-
+            io.sockets.emit('dustbinpickup1', dustbinData);
+        },10000);
 
     });
-
-
-   
-
+  
   });
 
 function googleMap(id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,objData){
@@ -553,9 +542,9 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
         }
 
        
-      });
+    });
       return router;
  
-    }
+}
 
 //module.exports = router;
