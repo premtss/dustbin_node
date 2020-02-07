@@ -497,7 +497,28 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
         });
     });
 
- 
 
+
+    router.post('/v1/requestArdunio', function(req, res) {
+        // var myData={
+        //   sensorData:req.query.datapercentage,
+        //   gsmNumber:req.query.mobile
+        // }
+        if(req.query.mobile==undefined || req.query.mobile==""){
+            res.send("Mobile number is not register");
+        }
+        else{
+            dustbinCtrl.updateDustbindata(req.query.datapercentage,req.query.mobile,result => { 
+                res.send(result);
+            });
+        }
+
+        
+       
+       // io.sockets.emit('temp', {date: myData}); //emit the datd i.e. {date, time, temp} to all the connected clients.
+       
+      });
+ 
+  
 
 module.exports = router;

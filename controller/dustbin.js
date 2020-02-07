@@ -217,5 +217,26 @@ const googleMapsClient = require('@google/maps').createClient({
     },
 
 
+    updateDustbindata:function(per,number,callback){
+
+        var sqlquery = "UPDATE dustbins set data_percentage=? WHERE gsm_moblie_number = ?";
+        db.query(sqlquery,[per,number], function (error,result) {
+            if (error) {
+            callback(error,null);
+            }
+            else{ 
+                if(result){
+                    callback('update record!',null);
+                }   else{
+                    callback('Mobile Number is not registered!',null);
+                }
+            
+        }
+        });
+     },
+
+
+
+
 }
 module.exports = wherehouse;
