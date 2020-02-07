@@ -9,7 +9,7 @@ const googleMapsClient = require('@google/maps').createClient({
     key: 'AIzaSyCntPB-qN_-K60eVMgJkJEy8Dn2ZxvxC6Y',
     Promise: Promise
   });
-
+  module.exports=function(io){
 router.post('/v1/dustbinList',verify.token,verify.blacklisttoken, (req,res,next)=>{
     jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
         if(err){
@@ -177,10 +177,10 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
 
 
                     //  io.on('connect', socket => {
-                    //     socket.emit('id', socket.id) // send each client their socket id
+                    //    console.log("AABBA") // send each client their socket id
                     // });
                       
-                   // console.log(Math.ceil(parseInt(3) / parseInt(2)));
+                    
                    res.status(200).send({ success:true,message: 'Successfully!', dustbinData});
                   },1000) ;
 
@@ -190,8 +190,47 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
         }
     });
  });
+ //Whenever someone connects this gets executed
+io.on('connection', function(socket) {
+    console.log('A user connected');
+  
+    //Whenever someone disconnects this piece of code executed
+    socket.on('disconnect', function () {
+       console.log('A user disconnected');
+    });
+
+      //  const io = req.app.get('socketio');
+      dustbinCtrl.dustbinfiltertype(result => { 
+        var dataa=[];
+        for(var i=0; i<result.length; i++){ 
+            googleMap(result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,call=>{                     
+              dataa.push(call);
+            });        
+        }
+         setTimeout(function () { 
+              const grouping = _.groupBy(dataa, function(element){
+                return element.warehouseaddress;
+             });
+            const dustbinData = _.map(grouping, (items, warehouse) => ({
+                    warehouseaddress: warehouse,
+                    warehousename:items[0].wname,
+                    NoofDustbin: items.length,
+                    novehicle:Math.ceil(parseInt(items.length) / parseInt(2)),
+                    WareHouseId:items[0].warehouse_id,
+                    data: items
+            }));
+
+            socket.emit('dustbinpickup', dustbinData);
+           
+          },1000) ;
 
 
+    });
+
+
+   
+
+  });
 
 function googleMap(id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,objData){
     
@@ -317,7 +356,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                     }));
 
                    
-                   // console.log(Math.ceil(parseInt(3) / parseInt(2)));
+                   io.sockets.emit('dustbinpickup', dustbinData); 
                    res.status(200).send({ success:true,message: 'Successfully!', dustbinData});
                   },1000) ;
 
@@ -513,12 +552,10 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
             });
         }
 
-        
-       
-       // io.sockets.emit('temp', {date: myData}); //emit the datd i.e. {date, time, temp} to all the connected clients.
        
       });
+      return router;
  
-  
+    }
 
-module.exports = router;
+//module.exports = router;
