@@ -199,7 +199,7 @@ io.on('connection', function(socket) {
        console.log('A user disconnected');
     });
 
-  setInterval(function () { 
+  //setInterval(function () { 
 
     dustbinCtrl.dustbinfiltertype(result => { 
 
@@ -215,7 +215,7 @@ io.on('connection', function(socket) {
                     data: items
             }));
             io.sockets.emit('dustbinpickup1', dustbinData);
-        },10000);
+       // },10000);
 
     });
   
