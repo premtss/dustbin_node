@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=8192 ng build --prod",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
