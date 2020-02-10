@@ -3,6 +3,7 @@ const router = express.Router();
 const dustbinCtrl = require('../controller/dustbin');
 const verify=require('./common');
 const jwt=require('jsonwebtoken');
+var cron = require('node-cron');
 
 var _ = require('underscore');
 const googleMapsClient = require('@google/maps').createClient({
@@ -200,8 +201,9 @@ io.on('connection', function(socket) {
     });
 
 });
-setInterval(function () { 
 
+cron.schedule('* * * * * *', () => {
+   // console.log('running every minute to 1 from 5');
     dustbinCtrl.dustbinfiltertypeSocket(result => { 
 
         const grouping = _.groupBy(result, function(element){
@@ -217,7 +219,25 @@ setInterval(function () {
       }));
       io.sockets.emit('dustbinpickup1', dustbinData);
     });
-  },30000);
+  });
+// setInterval(function () { 
+
+//     dustbinCtrl.dustbinfiltertypeSocket(result => { 
+
+//         const grouping = _.groupBy(result, function(element){
+//           return element.warehouseaddress;
+//        });
+//        const  dustbinData = _.map(grouping, (items, warehouse) => ({
+//               warehouseaddress: warehouse,
+//               warehousename:items[0].wname,
+//               NoofDustbin: items.length,
+//               novehicle:Math.ceil(parseInt(items.length) / parseInt(2)),
+//               WareHouseId:items[0].warehouse_id,
+//               data: items
+//       }));
+//       io.sockets.emit('dustbinpickup1', dustbinData);
+//     });
+//   },30000);
 
 function googleMap(id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,objData){
     
@@ -477,11 +497,6 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
      });
     });
       
-
-
-
-      
-
     //Not Use
     router.get('/v1/dustbinpickupsocket',verify.token,verify.blacklisttoken, (req,res,next)=>{
         jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
@@ -525,7 +540,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
 
 
 
-    router.post('/v1/requestArdunio', function(req, res) {
+    router.post('/v1/requests', function(req, res) {
         // var myData={
         //   sensorData:req.query.datapercentage,
         //   gsmNumber:req.query.mobile
@@ -541,6 +556,59 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
 
        
     });
+
+    router.post('/v1/pickupHistory',verify.token,verify.blacklisttoken, function(req, res) {
+        jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+            if(err){   
+                  res.status(401).send({success:false,message:"Unauthorized Token"});                  
+            }else{
+            dustbinCtrl.dustbinGroupDataHistory(req.body.page,req.body.perpage,req.body.filterdate,dresult => { 
+
+                //console.log(dresult.data.length); return false;
+                if(dresult.data.length>0){
+                    res.status(200).send({ success:true,message: 'Successfully!', dresult});
+                }else{
+                    res.status(200).send({ success:true,message: 'No records found'});
+                }
+               
+            });
+          }
+       });
+    });
+
+
+    router.get('/v1/dustbinMarker',verify.token,verify.blacklisttoken, function(req, res) {
+        jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+            if(err){   
+                  res.status(401).send({success:false,message:"Unauthorized Token"});                  
+            }else{
+               dustbinCtrl.dustbinMarker(dresult => { 
+                 if(dresult.length>0){
+                     res.status(200).send({ success:true,message: 'Successfully!', dresult});
+                 }else{
+                     res.status(200).send({ success:true,message: 'No records found'});
+                  }
+               
+                });
+                    }
+              });
+     });
+
+     router.get('/v1/dashboard',verify.token,verify.blacklisttoken, function(req, res) {
+        jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+            if(err){   
+                  res.status(401).send({success:false,message:"Unauthorized Token"});                  
+            }else{
+               dustbinCtrl.dashBoardData(dresult => { 
+                
+                     res.status(200).send({ success:true,message: 'Successfully!', dresult});
+                
+                });
+                    }
+              });
+     });
+
+
       return router;
  
 }
