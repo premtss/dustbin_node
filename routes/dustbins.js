@@ -202,7 +202,7 @@ io.on('connection', function(socket) {
 });
 setInterval(function () { 
 
-    dustbinCtrl.dustbinfiltertype(result => { 
+    dustbinCtrl.dustbinfiltertypeSocket(result => { 
 
         const grouping = _.groupBy(result, function(element){
           return element.warehouseaddress;
