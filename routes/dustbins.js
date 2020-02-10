@@ -199,27 +199,25 @@ io.on('connection', function(socket) {
        console.log('A user disconnected');
     });
 
-  //setInterval(function () { 
+});
+setInterval(function () { 
 
     dustbinCtrl.dustbinfiltertype(result => { 
 
-              const grouping = _.groupBy(result, function(element){
-                return element.warehouseaddress;
-             });
-             const  dustbinData = _.map(grouping, (items, warehouse) => ({
-                    warehouseaddress: warehouse,
-                    warehousename:items[0].wname,
-                    NoofDustbin: items.length,
-                    novehicle:Math.ceil(parseInt(items.length) / parseInt(2)),
-                    WareHouseId:items[0].warehouse_id,
-                    data: items
-            }));
-            io.sockets.emit('dustbinpickup1', dustbinData);
-       // },10000);
-
+        const grouping = _.groupBy(result, function(element){
+          return element.warehouseaddress;
+       });
+       const  dustbinData = _.map(grouping, (items, warehouse) => ({
+              warehouseaddress: warehouse,
+              warehousename:items[0].wname,
+              NoofDustbin: items.length,
+              novehicle:Math.ceil(parseInt(items.length) / parseInt(2)),
+              WareHouseId:items[0].warehouse_id,
+              data: items
+      }));
+      io.sockets.emit('dustbinpickup1', dustbinData);
     });
-  
-  });
+  },30000);
 
 function googleMap(id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,objData){
     

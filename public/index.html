@@ -20,7 +20,7 @@
        // console.log(JSON.stringify(data))
     });
    // socket.emit('welcomeMessage',"Welcome To Server");
-  
+   //setInterval(function () { 
     socket.on('dustbinpickup1', (dataSet)=>{
       $("#datalist").html('');
       console.log(dataSet);
@@ -39,7 +39,7 @@
       }
       
     });
-  
+  // },2000);
 </script>
 </body>
 </html>
