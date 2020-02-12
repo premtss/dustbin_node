@@ -384,7 +384,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                     }));
 
                    
-                   io.sockets.emit('dustbinpickup', dustbinData); 
+                  // io.sockets.emit('dustbinpickup', dustbinData); 
                    res.status(200).send({ success:true,message: 'Successfully!', dustbinData});
                   },1000) ;
 
@@ -622,7 +622,22 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
             }else{
                dustbinCtrl.dashBoardData(dresult => { 
                 
-                     res.status(200).send({ success:true,message: 'Successfully!', dresult});
+                if(dresult.todaypicuplist.length>0){
+                    const grouping = _.groupBy(dresult.todaypicuplist, function(element){
+                        return element.GroupName;
+                     });
+                    const dustbinData = _.map(grouping, (items, groupname) => ({
+                            groupName:groupname, 
+                            dustbincount: items.length,
+                          
+                    }));
+                    res.status(200).send({ success:true,message: 'Successfully!', dresult,data:dustbinData});
+                }
+                else{
+                    res.status(200).send({ success:true,message: 'Successfully!', dresult,data:0});
+                }
+
+                   
                 
                 });
                     }
