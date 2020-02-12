@@ -19,7 +19,7 @@ router.post('/v1/dustbinList',verify.token,verify.blacklisttoken, (req,res,next)
          
         }else{
             dustbinCtrl.getAlldustbinsItems(req.body.page,req.body.perpage,result => {
-
+            
             res.status(200).send({ success:true,message: 'Successfully!', result});
 
 
@@ -192,15 +192,18 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
     });
  });
  //Whenever someone connects this gets executed
-io.on('connection', function(socket) {
-    console.log('A user connected');
-  
-    //Whenever someone disconnects this piece of code executed
-    socket.on('disconnect', function () {
-       console.log('A user disconnected');
-    });
 
-});
+//  io.on('connection', function(socket) {
+//     console.log('A user connected');
+//       socket.on("dustbinpickup",(page,pagenumber,id,status)=>{
+//           getAllData(page,pagenumber,socket,id,status);            
+//       });
+//     //Whenever someone disconnects this piece of code executed
+//     socket.on('disconnect', function () {
+//        console.log('A user disconnected');
+//     });
+  
+//   });
 
 cron.schedule('* * * * * *', () => {
    // console.log('running every minute to 1 from 5');
@@ -220,24 +223,42 @@ cron.schedule('* * * * * *', () => {
       io.sockets.emit('dustbinpickup1', dustbinData);
     });
   });
-// setInterval(function () { 
+//   var interval,interval1;
+// function getAllData(page,pagenumber,socket,id,status){
+   
+   
+   
+//     if(status==true){
+//         // setTimeout(function() {
+//         //     clearInterval(interval);
+//         // }, 1000);
+           
+//         interval= setInterval(() =>{ 
+//               dustbinCtrl.getAlldustbinsItems(page,pagenumber,result => {  
+//                        io.to(id).emit("dustbinpickup",result);                
+//                  });
+//         },1000);   
 
-//     dustbinCtrl.dustbinfiltertypeSocket(result => { 
+//      }
+//      if(status==false){
+//         // setTimeout(function() {
+//         //     clearInterval(interval1);
+//         // }, 1000);
+//       setInterval(() =>{
+//                   dustbinCtrl.getAlldustbinsItems(page,pagenumber,result => {  
+                   
+//                      io.emit("dustbinpickup",result);
+                    
+//                  }) ;
+        
+//                 },1000);
+//             }
+   
+// } 
 
-//         const grouping = _.groupBy(result, function(element){
-//           return element.warehouseaddress;
-//        });
-//        const  dustbinData = _.map(grouping, (items, warehouse) => ({
-//               warehouseaddress: warehouse,
-//               warehousename:items[0].wname,
-//               NoofDustbin: items.length,
-//               novehicle:Math.ceil(parseInt(items.length) / parseInt(2)),
-//               WareHouseId:items[0].warehouse_id,
-//               data: items
-//       }));
-//       io.sockets.emit('dustbinpickup1', dustbinData);
-//     });
-//   },30000);
+
+
+ 
 
 function googleMap(id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,objData){
     

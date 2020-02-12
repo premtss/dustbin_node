@@ -9,19 +9,49 @@
 <body>
     <h1>Welcome To Dustbin...!!</h1>
     <div id="datalist"></div>
+    ===========================
+    <select id="mySelect" onchange="myFunction()">
+      <option value="2">2</option>
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="15">15</option>
+    </select>
 
+
+    <div id="datalist1"></div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="http://192.168.0.150:3002/socket.io/socket.io.js"></script>
 <script>
-  const socket = io('http://192.168.0.150:3002');
-
+  const socket = io('http://192.168.0.150:3002',{'forceNew':true });
+  var page=1; var status=false;
    socket.on('connect',function(data) {
         console.log("Server is connected");
-       // console.log(JSON.stringify(data))
+        var  record = document.getElementById("mySelect").value;
+        socket.emit('dustbinpickup',page,record,socket.id,false);
+        getData(socket,socket.id);
     });
-   // socket.emit('welcomeMessage',"Welcome To Server");
-   //setInterval(function () { 
-    socket.on('dustbinpickup1', (dataSet)=>{
+   
+    function myFunction(status) {
+     var record = document.getElementById("mySelect").value;
+      console.log(record);
+        socket.emit('dustbinpickup',page,record,socket.id,true);
+        getData(socket,socket.id);
+
+     }
+   
+  function getData(socket,id){
+    $("#datalist1").html('');
+   socket.on('dustbinpickup',(dataSet,id)=>{   
+     $("#datalist1").html('');
+     if(dataSet.length!=0){
+           for(var xxi=0;xxi<dataSet.data.length;xxi++){ 
+           $("#datalist1").append('<div>GSM:'+dataSet.data[xxi].gsm_moblie_number+' <span>DataPercentage:'+dataSet.data[xxi].data_percentage+'</span></div>');
+       }  
+     }
+   });  
+  }
+
+  socket.on('dustbinpickup1', (dataSet)=>{
       $("#datalist").html('');
       //console.log(dataSet);
       if(dataSet.length!=0){
@@ -39,7 +69,7 @@
       }
       
     });
-  // },2000);
+  
 </script>
 </body>
 </html>
