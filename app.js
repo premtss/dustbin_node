@@ -50,9 +50,9 @@ app.get('/', function(req, res) {
 
 io.on('connection', function(socket) {
   console.log('A user connected');
-    socket.on("dustbinpickup",(page,pagenumber,id)=>{
-        getAllData(page,pagenumber,socket,id);            
-    });
+    // socket.on("dustbinpickup",(page,pagenumber,id)=>{
+    //     getAllData(page,pagenumber,socket,id);            
+    // });
   //Whenever someone disconnects this piece of code executed
   socket.on('disconnect', function () {
      console.log('A user disconnected');
