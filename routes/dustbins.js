@@ -628,6 +628,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                      });
                     const dustbinData = _.map(grouping, (items, groupname) => ({
                             groupName:groupname, 
+                            groupStatus:items[0].status, 
                             dustbincount: items.length,
                           
                     }));

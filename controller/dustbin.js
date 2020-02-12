@@ -358,7 +358,7 @@ const googleMapsClient = require('@google/maps').createClient({
                                             
                                  if (error) throw error;
 //========
-                                 var sqlquery ="SELECT assign_group_vehicle.groupid as GroupName FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.status=1";
+                                 var sqlquery ="SELECT assign_group_vehicle.groupid as GroupName, assign_group_vehicle.status,assign_group_vehicle.assigndate FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and DATE(assign_group_vehicle.assigndate)=CURDATE()";
                                     db.query(sqlquery, function (error, groupresults) {
                                              
                                   if (error) throw error;
