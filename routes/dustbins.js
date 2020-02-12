@@ -360,7 +360,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
             dustbinCtrl.dustbinGroupData(result => { 
                 var dataa=[];
                 for(var i=0; i<result.length; i++){ 
-                    googleMapgroup(result[i].assigndate,result[i].GroupName,result[i].vehicleID,result[i].modelName,result[i].vehicle_rc,result[i].drivername,result[i].mobile_no,result[i].driver_image,result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,call=>{                     
+                    googleMapgroup(result[i].Groupstatus,result[i].assigndate,result[i].GroupName,result[i].vehicleID,result[i].modelName,result[i].vehicle_rc,result[i].drivername,result[i].mobile_no,result[i].driver_image,result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,call=>{                     
                       dataa.push(call);
                     });        
                 }
@@ -369,6 +369,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                         return element.GroupName;
                      });
                     const dustbinData = _.map(grouping, (items, warehouse) => ({
+                            Groupstatus:items[0].Groupstatus,
                             groupName:warehouse, 
                             warehousename:items[0].wname,
                             warehouseaddress: items[0].warehouseaddress,
@@ -395,7 +396,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
     });
  });
 
- function googleMapgroup(assigndate,GroupName,vehicleID,VehicleName,VehicleRC,driverName,drivermobile,driverphoto,id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,objData){
+ function googleMapgroup(Groupstatus,assigndate,GroupName,vehicleID,VehicleName,VehicleRC,driverName,drivermobile,driverphoto,id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,objData){
     
     googleMapsClient.distanceMatrix({
         origins: {lat:warelatitude,lng:warelongitute},
@@ -405,6 +406,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
        if (!err) {
    
           objData({
+                "Groupstatus":Groupstatus,
                 "GroupName":GroupName,
                 "assigndate":assigndate,
                 "VehicleName":VehicleName,
@@ -417,7 +419,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                 "warehouse_id": warehouse_id,
                 "name": name,
                 "wname":wname,
-                "latiude":longitude,
+                "latiude":latiude,
                 "longitude": longitude,
                 "address": address,
                 "status": status,
@@ -482,7 +484,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                  dustbinCtrl.dustbinGroupSingleData(req.body.groupid, result=>{
                     var dataa=[];
                     for(var i=0; i<result.length; i++){ 
-                        googleMapgroup(result[i].assigndate,result[i].GroupName,result[i].vehicleID,result[i].modelName,result[i].vehicle_rc,result[i].drivername,result[i].mobile_no,result[i].driver_image,result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,call=>{                     
+                        googleMapgroup(result[i].Groupstatus,result[i].assigndate,result[i].GroupName,result[i].vehicleID,result[i].modelName,result[i].vehicle_rc,result[i].drivername,result[i].mobile_no,result[i].driver_image,result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,call=>{                     
                           dataa.push(call);
                         });        
                     }
@@ -492,6 +494,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                             return element.GroupName;
                          });
                         const dustbinData = _.map(grouping, (items, warehouse) => ({
+                                Groupstatus:items[0].Groupstatus,
                                 groupName:warehouse, 
                                 warehousename:items[0].wname,
                                 warehouseaddress: items[0].warehouseaddress,
@@ -501,7 +504,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                                 drivermobile:items[0].drivermobile,
                                 driverphoto:items[0].driverphoto,
                                 datacount: items.length,
-                                dataassignDate:items[0].assigndate,
+                                dataassignDate:items[0].assigndate,                             
                                 vehicleID:items[0].vehicleID,
                                 data: items
                         }));

@@ -4,7 +4,7 @@ const adminCtrl = require('../controller/admins');
 const vehicleCtrl = require('../controller/vehicle');
 const verify=require('./common');
 const jwt=require('jsonwebtoken');
-
+var _ = require('underscore');
 const multer = require('multer');
 const path = require('path');
 
@@ -407,7 +407,31 @@ router.post('/v1/vehiclenotassign',verify.token,verify.blacklisttoken, (req,res,
                 res.status(422).send({ success:false,message: 'Vehicle RC  is required!' });
             }else{
                 vehicleCtrl.getVehicles(req.body.vehiclerc,result => {
-                    res.status(200).send({ success:true,message: 'Successfully!', result});
+
+                   
+                    const grouping = _.groupBy(result.historyList, function(element){
+                        return element.GroupName;
+                     });
+                    const dustbinData = _.map(grouping, (items, warehouse) => ({
+                            Groupstatus:items[0].Groupstatus,
+                            groupName:warehouse, 
+                            warehousename:items[0].wname,
+                            warehouseaddress: items[0].warehouseaddress,
+                            VehicleName: items[0].modelName,
+                            VehicleRC: items[0].vehicle_rc,
+                            driverName:items[0].drivername,
+                            drivermobile:items[0].mobile_no,
+                            driverphoto:items[0].driver_image,
+                            dustbincount: items.length,
+                            dataassignDate:items[0].assigndate,                             
+                            vehicleID:items[0].vehicleID,
+                            assignstatus:items[0].assignstatus
+                           
+                    }));
+                    res.status(200).send({ success:true,message: 'Successfully!', result, dustbinData});
+
+
+
                 });
             }
        }

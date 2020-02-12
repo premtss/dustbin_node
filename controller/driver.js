@@ -145,22 +145,35 @@ var vehicles = {
            callback(error,null);
            }
            else{
-
+//SELECT drivers.name as drivername,drivers.mobile_no,drivers.driver_image, vehicles.id as vehicleID,vehicles.model_name as modelName,vehicles.vehicle_rc, assign_group_vehicle.groupid as GroupName,assign_group_vehicle.assigndate, dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and drivers.mobile_no='996765756733'
             var sqlquery2 ="SELECT vehicles.id,vehicles.vehicle_rc,vehicles.model_name,vehicles.status,vehicles.available_status,drivers.name,drivers.mobile_no,drivers.driver_image, mapping_vehicle_drivers.status as oldstatus FROM `vehicles` INNER JOIN mapping_vehicle_drivers ON (vehicles.id = mapping_vehicle_drivers.vehicle_id) INNER JOIN drivers ON (mapping_vehicle_drivers.driver_id = drivers.id) WHERE drivers.mobile_no=?";
             db.query(sqlquery2,[mobileno], function (error, resultvehicle) {
                 if (error) {
                 callback(error,null);
                 }
                 else{
+                    var sqlquery3 ="SELECT drivers.name as drivername,drivers.mobile_no,vehicles.vehicle_photo as vphoto, vehicles.id as vehicleID,vehicles.model_name as modelName,vehicles.vehicle_rc,assign_group_vehicle.status as Groupstatus, assign_group_vehicle.groupid as GroupName,assign_group_vehicle.assigndate as assigndate, dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and drivers.mobile_no=?";
+                  
+                    db.query(sqlquery3,[mobileno], function (error, resultHistory) {
+                        if (error) {
+                            callback(error,null);
+                            }
+                    else{
+                        var obj={};
+
                     var obj={
                         singledata:results[0],
                         document:{passportimage:results[0].passport_image,nationalimage:results[0].national_id_image,drivinglicimage:results[0].driving_lic_image,visaimage:results[0].visa_image},
                         vehicleList:resultvehicle,
+                        historyList:resultHistory
                     }
                  callback(obj,null);
-            }
-         });
+                }
+             });
 
+            }
+        
+        });
        }
     });
 },

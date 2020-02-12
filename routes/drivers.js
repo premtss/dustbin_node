@@ -3,7 +3,7 @@ const router = express.Router();
 const driverCtrl = require('../controller/driver');
 const verify=require('./common');
 const jwt=require('jsonwebtoken');
-
+var _ = require('underscore');
 const multer = require('multer');
 const path = require('path');
 
@@ -558,7 +558,30 @@ router.put('/v1/updateDriver',verify.token,verify.blacklisttoken,upload.fields([
                 res.status(422).send({ success:false,message: 'Driver ID  is required!' });
             }else{
                 driverCtrl.getDriver(req.body.mobileno,result => {
-                    res.status(200).send({ success:true,message: 'Successfully!', result});
+
+                   
+
+                    const grouping = _.groupBy(result.historyList, function(element){
+                        return element.GroupName;
+                     });
+                    const dustbinData = _.map(grouping, (items, warehouse) => ({
+                            Groupstatus:items[0].Groupstatus,
+                            groupName:warehouse, 
+                            warehousename:items[0].wname,
+                            warehouseaddress: items[0].warehouseaddress,
+                            VehicleName: items[0].modelName,
+                            VehicleRC: items[0].vehicle_rc,
+                            driverName:items[0].drivername,
+                            drivermobile:items[0].mobile_no,
+                            vephoto:items[0].vphoto,
+                            dustbincount: items.length,
+                            dataassignDate:items[0].assigndate,                             
+                            vehicleID:items[0].vehicleID,
+                           // assignstatus:items[0].assignstatus
+                           
+                    }));
+                  //  console.log(dustbinData)
+                    res.status(200).send({ success:true,message: 'Successfully!', dustbinData,result});
                 });
             }
        }
