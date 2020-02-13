@@ -231,7 +231,7 @@ cron.schedule('* * * * * *', () => {
      });
    });
 
-  cron.schedule('*/15 * * * * *', () => {
+  cron.schedule('* * * * * *', () => {
 
     dustbinCtrl.dustbinfiltertype(result => { 
         var dataa=[];
