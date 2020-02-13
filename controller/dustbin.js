@@ -145,6 +145,23 @@ const googleMapsClient = require('@google/maps').createClient({
     });
     },
 
+
+    
+    dustbinfiltertypeSocket2:function(callback){
+        //  WHERE dustbins.data_percentage > 61
+        var sqlquery ="SELECT dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id";
+        db.query(sqlquery, function (error, results) {
+            if (error) {
+            callback(error,null);
+            }
+            else{
+             
+              callback(results,null);
+
+        }
+    });
+    },
+
     assignVehicledustbins:function(groupid,wid,did,assigndate,callback){
     var selectQry="select If(vehicles.id IS NULL or vehicles.id ='' ,'empty',vehicles.id) as Vid  from vehicles LEFT JOIN warehouse_mapped_vehicles on vehicles.id=warehouse_mapped_vehicles.vehicleid INNER join mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id WHERE vehicles.status=1 and vehicles.available_status=0 and warehouse_mapped_vehicles.warehouse_Id='"+wid+"' limit 1";
     db.query(selectQry, function (error,results) { 

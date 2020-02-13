@@ -212,6 +212,25 @@ cron.schedule('* * * * * *', () => {
     });
   });
 
+  cron.schedule('* * * * * *', () => {
+    // console.log('running every minute to 1 from 5');
+     dustbinCtrl.dustbinfiltertypeSocket2(result => { 
+ 
+         const grouping = _.groupBy(result, function(element){
+           return element.warehouseaddress;
+        });
+        const  dustbinData = _.map(grouping, (items, warehouse) => ({
+               warehouseaddress: warehouse,
+               warehousename:items[0].wname,
+               NoofDustbin: items.length,
+               novehicle:Math.ceil(parseInt(items.length) / parseInt(2)),
+               WareHouseId:items[0].warehouse_id,
+               data: items
+       }));
+       io.sockets.emit('dustbinpickup', dustbinData);
+     });
+   });
+
   cron.schedule('*/15 * * * * *', () => {
 
     dustbinCtrl.dustbinfiltertype(result => { 
