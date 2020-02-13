@@ -191,19 +191,7 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
         }
     });
  });
- //Whenever someone connects this gets executed
 
-//  io.on('connection', function(socket) {
-//     console.log('A user connected');
-//       socket.on("dustbinpickup",(page,pagenumber,id,status)=>{
-//           getAllData(page,pagenumber,socket,id,status);            
-//       });
-//     //Whenever someone disconnects this piece of code executed
-//     socket.on('disconnect', function () {
-//        console.log('A user disconnected');
-//     });
-  
-//   });
 
 cron.schedule('* * * * * *', () => {
    // console.log('running every minute to 1 from 5');
@@ -223,6 +211,39 @@ cron.schedule('* * * * * *', () => {
       io.sockets.emit('dustbinpickup1', dustbinData);
     });
   });
+
+  cron.schedule('*/15 * * * * *', () => {
+
+    dustbinCtrl.dustbinfiltertype(result => { 
+        var dataa=[];
+        for(var i=0; i<result.length; i++){ 
+            googleMap(result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,call=>{                     
+              dataa.push(call);
+            });        
+        }
+         setTimeout(function () { 
+              const grouping = _.groupBy(dataa, function(element){
+                return element.warehouseaddress;
+             });
+            const dustbinData = _.map(grouping, (items, warehouse) => ({
+                    warehouseaddress: warehouse,
+                    warehousename:items[0].wname,
+                    NoofDustbin: items.length,
+                    novehicle:Math.ceil(parseInt(items.length) / parseInt(2)),
+                    WareHouseId:items[0].warehouse_id,
+                    data: items
+            }));
+            io.sockets.emit('groupdustbinpickup', dustbinData);
+
+          },1000) ;
+
+
+    });
+   });
+
+
+
+
 //   var interval,interval1;
 // function getAllData(page,pagenumber,socket,id,status){
    
