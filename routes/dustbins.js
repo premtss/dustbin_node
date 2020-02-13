@@ -586,16 +586,116 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
             if(err){   
                   res.status(401).send({success:false,message:"Unauthorized Token"});                  
             }else{
-            dustbinCtrl.dustbinGroupDataHistory(req.body.page,req.body.perpage,req.body.filterdate,dresult => { 
+             
+                //console.log(req.body);
+                 if(req.body.filterdate===null &&  req.body.filterdate2===null &&  req.body.wid===null){
+                 
+                    dustbinCtrl.dustbinGroupDataHistory(req.body.page,req.body.perpage,dresult => { 
 
-                //console.log(dresult.data.length); return false;
-                if(dresult.data.length>0){
-                    res.status(200).send({ success:true,message: 'Successfully!', dresult});
-                }else{
-                    res.status(200).send({ success:true,message: 'No records found'});
+
+                        if(dresult.data.length>0){
+
+                            const grouping = _.groupBy(dresult.data, function(element){
+                                return element.GroupName;
+                             });
+                            const dustbinData = _.map(grouping, (items, warehouse) => ({
+                                    Groupstatus:items[0].Groupstatus,
+                                    groupName:warehouse, 
+                                    warehousename:items[0].wname,
+                                    warehouseaddress: items[0].warehouseaddress,
+                                    VehicleName: items[0].modelName,
+                                    VehicleRC: items[0].vehicle_rc,
+                                    driverName:items[0].drivername,
+                                    drivermobile:items[0].mobile_no,
+                                    driverphoto:items[0].driver_image,
+                                    datacount: items.length,
+                                    dataassignDate:items[0].assigndate,
+                                    vehicleID:items[0].vehicleID,
+                                    WarehouseID:items[0].warehouse_id,
+                            }));
+        
+                            res.status(200).send({ success:true,message: 'Successfully!', dustbinData,totalpage:dresult.totalpage,totalrecoard:dresult.totalrecoard});
+
+                        }else{
+                            res.status(200).send({ success:true,message: 'No records found',dustbinData:0,totalpage:0,totalrecoard:0});
+                        }
+                       
+                        });
+                    }
+
+
+                    else if(req.body.filterdate!=null  && req.body.filterdate2!=null  && req.body.wid==null){
+                       
+                            dustbinCtrl.dustbinGroupDataHistory2(req.body.page,req.body.perpage,req.body.filterdate,req.body.filterdate2,dresult => { 
+                                if(dresult.data.length>0){
+
+                                    const grouping = _.groupBy(dresult.data, function(element){
+                                        return element.GroupName;
+                                     });
+                                    const dustbinData = _.map(grouping, (items, warehouse) => ({
+                                        Groupstatus:items[0].Groupstatus,
+                                        groupName:warehouse, 
+                                        warehousename:items[0].wname,
+                                        warehouseaddress: items[0].warehouseaddress,
+                                        VehicleName: items[0].modelName,
+                                        VehicleRC: items[0].vehicle_rc,
+                                        driverName:items[0].drivername,
+                                        drivermobile:items[0].mobile_no,
+                                        driverphoto:items[0].driver_image,
+                                        datacount: items.length,
+                                        dataassignDate:items[0].assigndate,
+                                        vehicleID:items[0].vehicleID,
+                                        WarehouseID:items[0].warehouse_id,
+                                    }));
+                
+
+                                    res.status(200).send({ success:true,message: 'Successfully!',dustbinData,totalpage:dresult.totalpage,totalrecoard:dresult.totalrecoard});
+                                }else{
+                                    res.status(200).send({ success:true,message: 'No records found', dustbinData:0,totalpage:0,totalrecoard:0});
+                                }
+                            
+                            });
+
+                        }
+               else if(req.body.wid!=null  && req.body.filterdate==null || req.body.filterdate==''  && req.body.filterdate2==null ||  req.body.filterdate2==''){
+                     
+                    dustbinCtrl.dustbinGroupDataHistory1(req.body.page,req.body.perpage,req.body.wid,dresult => { 
+                                       if(dresult.data.length>0){
+
+                                        const grouping = _.groupBy(dresult.data, function(element){
+                                            return element.GroupName;
+                                         });
+                                        const dustbinData = _.map(grouping, (items, warehouse) => ({
+                                            Groupstatus:items[0].Groupstatus,
+                                            groupName:warehouse, 
+                                            warehousename:items[0].wname,
+                                            warehouseaddress: items[0].warehouseaddress,
+                                            VehicleName: items[0].modelName,
+                                            VehicleRC: items[0].vehicle_rc,
+                                            driverName:items[0].drivername,
+                                            drivermobile:items[0].mobile_no,
+                                            driverphoto:items[0].driver_image,
+                                            datacount: items.length,
+                                            dataassignDate:items[0].assigndate,
+                                            vehicleID:items[0].vehicleID,
+                                            WarehouseID:items[0].warehouse_id,
+                                            
+                                        }));
+                    
+
+                                           res.status(200).send({ success:true,message: 'Successfully!', dustbinData,totalpage:dresult.totalpage,totalrecoard:dresult.totalrecoard});
+                                       }else{
+                                           res.status(200).send({ success:true,message: 'No records found',dustbinData:0,totalpage:0,totalrecoard:0});
+                                       }
+                                      
+                        });
                 }
-               
-            });
+               else {
+                console.log("2222222666666666666");
+
+             
+               }
+ 
           }
        });
     });
