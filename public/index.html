@@ -18,57 +18,113 @@
     </select>
 
 
+    
+   <input type="checkbox" value="one" id="chkall" onClick="slctAll(this,'items[]')"   />
+<label class="float--none">One</label><br />
+
+<input type="checkbox" value="two" name="items[]" onClick="slctsingle(this,'items[]')"  />
+<label class="float--none">Two</label><br />
+<input type="checkbox" value="three" name="items[]"onClick="slctsingle(this,'items[]')"  />
+<label class="float--none">Three</label><br />
+<input type="checkbox" value="four" name="items[]" onClick="slctsingle(this,'items[]')"  />
+<label class="float--none">Four</label><br />
+<input type="checkbox" value="five" name="items2[]" onClick="slctsingle(this,'items2[]')"  />
+<label class="float--none">Five</label><br />
+<input type="checkbox" value="five" name="items2[]" onClick="slctsingle(this,'items2[]')"  />
+<label class="float--none">Five</label><br />
+
+
     <div id="datalist1"></div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="http://192.168.0.150:3002/socket.io/socket.io.js"></script>
 <script>
-  const socket = io('http://192.168.0.150:3002',{'forceNew':true });
-  var page=1; var status=false;
-   socket.on('connect',function(data) {
-        console.log("Server is connected");
-        var  record = document.getElementById("mySelect").value;
-        socket.emit('dustbinpickup',page,record,socket.id,false);
-        getData(socket,socket.id);
-    });
+  // const socket = io('http://192.168.0.150:3002',{'forceNew':true });
+  // var page=1; var status=false;
+  //  socket.on('connect',function(data) {
+  //       console.log("Server is connected");
+  //       var  record = document.getElementById("mySelect").value;
+  //       socket.emit('dustbinpickup',page,record,socket.id,false);
+  //       getData(socket,socket.id);
+  //   });
    
-    function myFunction(status) {
-     var record = document.getElementById("mySelect").value;
-      console.log(record);
-        socket.emit('dustbinpickup',page,record,socket.id,true);
-        getData(socket,socket.id);
+  //   function myFunction(status) {
+  //    var record = document.getElementById("mySelect").value;
+  //     console.log(record);
+  //       socket.emit('dustbinpickup',page,record,socket.id,true);
+  //       getData(socket,socket.id);
 
-     }
+  //    }
    
-  function getData(socket,id){
-    $("#datalist1").html('');
-   socket.on('dustbinpickup',(dataSet,id)=>{   
-     $("#datalist1").html('');
-     if(dataSet.length!=0){
-           for(var xxi=0;xxi<dataSet.data.length;xxi++){ 
-           $("#datalist1").append('<div>GSM:'+dataSet.data[xxi].gsm_moblie_number+' <span>DataPercentage:'+dataSet.data[xxi].data_percentage+'</span></div>');
-       }  
-     }
-   });  
+  // function getData(socket,id){
+  //   $("#datalist1").html('');
+  //  socket.on('dustbinpickup',(dataSet,id)=>{   
+  //    $("#datalist1").html('');
+  //    if(dataSet.length!=0){
+  //          for(var xxi=0;xxi<dataSet.data.length;xxi++){ 
+  //          $("#datalist1").append('<div>GSM:'+dataSet.data[xxi].gsm_moblie_number+' <span>DataPercentage:'+dataSet.data[xxi].data_percentage+'</span></div>');
+  //      }  
+  //    }
+  //  });  
+  // }
+ 
+function slctAll(thiss,xxx){
+  //console.log($(thiss).prop('checked'));
+ 
+ if($(thiss).prop('checked')==true){
+  $('input:checkbox[name="'+xxx+'"]').prop('checked', thiss.checked); 
+ }else{
+  $('input:checkbox[name="'+xxx+'"]').prop('checked', ''); 
+ }  
+}
+var status=0;
+ function slctsingle(thiss,xxx){
+
+ if($(thiss).prop('checked')==true){
+
+     $(thiss).prop('checked', thiss.checked);  
+
+  if($('input:checkbox[name="'+xxx+'"]:checked').length == $('input:checkbox[name="'+xxx+'"]').length ){
+        $("#"+thiss)[0].checked = true; 
   }
 
-  socket.on('dustbinpickup1', (dataSet)=>{
-      $("#datalist").html('');
-      //console.log(dataSet);
-      if(dataSet.length!=0){
+}
+ else{
+  $(thiss).prop('checked', ''); 
+  $("#"+thiss)[0].checked = false;
+ }  
+ 
+}
+// //uncheck "select all", if one of the listed checkbox item is unchecked
+// if(this.checked == false){ //if this item is unchecked
+// 		$("#select_all")[0].checked = false; //change "select all" checked status to false
+// 	}
+	
+// 	//check "select all" if all checkbox items are checked
+	// if ($('.checkbox:checked').length == $('.checkbox').length ){ 
+	// 	$("#select_all")[0].checked = true; //change "select all" checked status to true
+	// }
+    
+
+
+
+  // socket.on('dustbinpickup1', (dataSet)=>{
+  //     $("#datalist").html('');
+  //     //console.log(dataSet);
+  //     if(dataSet.length!=0){
        
-        for(var x=0;x<dataSet.length;x++){
+  //       for(var x=0;x<dataSet.length;x++){
         
-          for(var xx=0;xx<dataSet[x].data.length;xx++){
+  //         for(var xx=0;xx<dataSet[x].data.length;xx++){
           
-            $("#datalist").append('<div>GSM:'+dataSet[x].data[xx].gsm_moblie_number+' <span>DataPercentage:'+dataSet[x].data[xx].data_percentage+'</span></div>');
+  //           $("#datalist").append('<div>GSM:'+dataSet[x].data[xx].gsm_moblie_number+' <span>DataPercentage:'+dataSet[x].data[xx].data_percentage+'</span></div>');
 
           
-          }
-        }
+  //         }
+  //       }
         
-      }
+  //     }
       
-    });
+  //   });
   
 </script>
 </body>
