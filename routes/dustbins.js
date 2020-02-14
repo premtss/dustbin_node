@@ -193,7 +193,7 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
  });
 
 
-cron.schedule('* * * * * *', () => {
+cron.schedule('*/20 * * * * *', () => {
    // console.log('running every minute to 1 from 5');
     dustbinCtrl.dustbinfiltertypeSocket(result => { 
 

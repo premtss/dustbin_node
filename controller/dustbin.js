@@ -132,7 +132,7 @@ const googleMapsClient = require('@google/maps').createClient({
 
     dustbinfiltertypeSocket:function(callback){
         //  WHERE dustbins.data_percentage > 61
-        var sqlquery ="SELECT dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id WHERE dustbins.id not in(select did from assign_group_vehicle)";
+        var sqlquery ="SELECT dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id";
         db.query(sqlquery, function (error, results) {
             if (error) {
             callback(error,null);

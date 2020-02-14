@@ -5,47 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Dustbin</title>
+    <style>
+      /* body {  
+  background: #1D1F20;
+  padding: 16px;
+} */
+
+canvas {
+  border: 1px dotted red;
+}
+
+.chart-container {
+  position: relative;
+  margin: auto;
+  height: 80vh;
+  width: 80vw;
+}
+
+    </style>
 </head>
 <body>
+  <select id="mySelect" onchange="myFunction()">
+    <option value="2">2</option>
+    <option value="5">5</option>
+    <option value="10">10</option>
+    <option value="15">15</option>
+  </select>
     <h1>Welcome To Dustbin...!!</h1>
     <div id="datalist"></div>
     ===========================
-    <select id="mySelect" onchange="myFunction()">
-      <option value="2">2</option>
-      <option value="5">5</option>
-      <option value="10">10</option>
-      <option value="15">15</option>
-    </select>
+   
 
 
-    
-   <input type="checkbox" value="one" id="chkall" onClick="slctAll(this,'items[]')"   />
-<label class="float--none">One</label><br />
+    <!-- <div id="datalist1"></div> -->
+    <div class="chart-container">
+      <canvas id="chart"></canvas>
+  </div>
+  
 
-<input type="checkbox" value="two" name="items[]" onClick="slctsingle(this,'items[]')"  />
-<label class="float--none">Two</label><br />
-<input type="checkbox" value="three" name="items[]"onClick="slctsingle(this,'items[]')"  />
-<label class="float--none">Three</label><br />
-<input type="checkbox" value="four" name="items[]" onClick="slctsingle(this,'items[]')"  />
-<label class="float--none">Four</label><br />
-<input type="checkbox" value="five" name="items2[]" onClick="slctsingle(this,'items2[]')"  />
-<label class="float--none">Five</label><br />
-<input type="checkbox" value="five" name="items2[]" onClick="slctsingle(this,'items2[]')"  />
-<label class="float--none">Five</label><br />
-
-
-    <div id="datalist1"></div>
+  
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
     <script src="http://192.168.0.150:3002/socket.io/socket.io.js"></script>
 <script>
-  // const socket = io('http://192.168.0.150:3002',{'forceNew':true });
+  const socket = io('http://192.168.0.150:3002',{'forceNew':true });
   // var page=1; var status=false;
-  //  socket.on('connect',function(data) {
-  //       console.log("Server is connected");
-  //       var  record = document.getElementById("mySelect").value;
-  //       socket.emit('dustbinpickup',page,record,socket.id,false);
-  //       getData(socket,socket.id);
-  //   });
+    socket.on('connect',function(data) {
+         console.log("Server is connected");
+       // var  record = document.getElementById("mySelect").value;
+         //socket.emit('dustbinpickup',page,record,socket.id,false);
+        // getData(socket,socket.id);
+     });
    
   //   function myFunction(status) {
   //    var record = document.getElementById("mySelect").value;
@@ -67,65 +77,69 @@
   //  });  
   // }
  
-function slctAll(thiss,xxx){
-  //console.log($(thiss).prop('checked'));
- 
- if($(thiss).prop('checked')==true){
-  $('input:checkbox[name="'+xxx+'"]').prop('checked', thiss.checked); 
- }else{
-  $('input:checkbox[name="'+xxx+'"]').prop('checked', ''); 
- }  
-}
-var status=0;
- function slctsingle(thiss,xxx){
-
- if($(thiss).prop('checked')==true){
-
-     $(thiss).prop('checked', thiss.checked);  
-
-  if($('input:checkbox[name="'+xxx+'"]:checked').length == $('input:checkbox[name="'+xxx+'"]').length ){
-        $("#"+thiss)[0].checked = true; 
-  }
-
-}
- else{
-  $(thiss).prop('checked', ''); 
-  $("#"+thiss)[0].checked = false;
- }  
- 
-}
-// //uncheck "select all", if one of the listed checkbox item is unchecked
-// if(this.checked == false){ //if this item is unchecked
-// 		$("#select_all")[0].checked = false; //change "select all" checked status to false
-// 	}
-	
-// 	//check "select all" if all checkbox items are checked
-	// if ($('.checkbox:checked').length == $('.checkbox').length ){ 
-	// 	$("#select_all")[0].checked = true; //change "select all" checked status to true
-	// }
-    
-
-
-
-  // socket.on('dustbinpickup1', (dataSet)=>{
-  //     $("#datalist").html('');
-  //     //console.log(dataSet);
-  //     if(dataSet.length!=0){
+var dustbinname=[];
+var dustbinData=[];
+//var data;
+  socket.on('dustbinpickup1', (dataSet)=>{
+    dustbinname=[];
+    dustbinData=[];
+      if(dataSet.length!=0){
        
-  //       for(var x=0;x<dataSet.length;x++){
+        for(var x=0;x<dataSet.length;x++){
         
-  //         for(var xx=0;xx<dataSet[x].data.length;xx++){
-          
-  //           $("#datalist").append('<div>GSM:'+dataSet[x].data[xx].gsm_moblie_number+' <span>DataPercentage:'+dataSet[x].data[xx].data_percentage+'</span></div>');
+          for(var xx=0;xx<dataSet[x].data.length;xx++){
+            dustbinData.push(dataSet[x].data[xx].data_percentage);
+            dustbinname.push(dataSet[x].data[xx].gsm_moblie_number);
+           }
+        }
+        GetAll(dustbinname,dustbinData)
+      }
 
-          
-  //         }
-  //       }
-        
-  //     }
       
-  //   });
+    });
+    function GetAll(Name,Data) 
+    {
+      var data = {
+  labels: Name,
+  datasets: [{
+    label: "Dataset #1",
+    backgroundColor: "rgba(255,99,132,0.2)",
+    borderColor: "rgba(255,99,132,1)",
+    borderWidth: 2,
+    hoverBackgroundColor: "rgba(255,99,132,0.4)",
+    hoverBorderColor: "rgba(255,99,132,1)",
+    data: Data,
+  }]
+};
+ 
+var options = {
+  maintainAspectRatio: false,
+  scales: {
+    yAxes: [{
+      stacked: true,
+      gridLines: {
+        display: true,
+        color: "rgba(255,99,132,0.2)"
+      }
+    }],
+    xAxes: [{
+      gridLines: {
+        display: false
+      }
+    }]
+  }
+};
+
+Chart.Bar('chart', {
+  options: options,
+  data: data
+});
+
+      }
+ console.log(dustbinname);
   
+
+
 </script>
 </body>
 </html>
