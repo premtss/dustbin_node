@@ -162,13 +162,13 @@ const googleMapsClient = require('@google/maps').createClient({
     });
     },
 
-    assignVehicledustbins:function(groupid,wid,did,assigndate,callback){
+    assignVehicledustbins:function(groupid,wid,did,dataper,assigndate,callback){
     var selectQry="select If(vehicles.id IS NULL or vehicles.id ='' ,'empty',vehicles.id) as Vid  from vehicles LEFT JOIN warehouse_mapped_vehicles on vehicles.id=warehouse_mapped_vehicles.vehicleid INNER join mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id WHERE vehicles.status=1 and vehicles.available_status=0 and warehouse_mapped_vehicles.warehouse_Id='"+wid+"' limit 1";
     db.query(selectQry, function (error,results) { 
         console.log(results.length)
         if(results.length!=0){
            // console.log("Find");
-            var sqlquery="INSERT INTO assign_group_vehicle(`groupid`,`wid`,	`vid`,`did`,`assigndate`,`status`) VALUES ('"+groupid+"','"+wid+"','"+results[0].Vid+"','"+did+"','"+assigndate+"','"+1+"')";
+            var sqlquery="INSERT INTO assign_group_vehicle(`groupid`,`wid`,	`vid`,`did`,`dustbindatapercentage`,`assigndate`,`status`) VALUES ('"+groupid+"','"+wid+"','"+results[0].Vid+"','"+did+"', '"+dataper+"','"+assigndate+"','"+1+"')";
                     db.query(sqlquery, function (error,result) {
                         if (error) {
                         callback(error,null);
@@ -355,7 +355,7 @@ const googleMapsClient = require('@google/maps').createClient({
 
     dustbinGroupSingleData:function(groupID,callback){
         //  WHERE dustbins.data_percentage > 61
-        var sqlquery ="SELECT drivers.name as drivername,drivers.mobile_no,drivers.driver_image, vehicles.id as vehicleID,vehicles.model_name as modelName,vehicles.vehicle_rc, assign_group_vehicle.groupid as GroupName, assign_group_vehicle.status as Groupstatus, assign_group_vehicle.assigndate,dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.groupid='"+groupID+"'";
+        var sqlquery ="SELECT drivers.name as drivername,drivers.mobile_no,drivers.driver_image, vehicles.id as vehicleID,vehicles.model_name as modelName,vehicles.vehicle_rc, assign_group_vehicle.groupid as GroupName, assign_group_vehicle.status as Groupstatus, assign_group_vehicle.assigndate,assign_group_vehicle.dustbindatapercentage,dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.groupid='"+groupID+"'";
         db.query(sqlquery, function (error, results) {
             if (error) {
             callback(error,null);
@@ -363,8 +363,8 @@ const googleMapsClient = require('@google/maps').createClient({
             else{
              
               callback(results,null);
-        }
-    });
+         }
+        });
     },
 
 
@@ -450,7 +450,111 @@ const googleMapsClient = require('@google/maps').createClient({
         });
 
         });
-     }
+     },
+
+
+     getAlldustbinsHistory:function(limit,offset,selectdate,wid,dataperfrom,callback){
+        var current_page = limit || 1;
+        var items_per_page = offset || 10;
+        var start_index = (current_page - 1) * items_per_page;
+        
+        if(wid!=="" && selectdate=="" && dataperfrom==""){
+            console.log(1);
+            db.query('SELECT count(*) as total FROM `assign_group_vehicle` INNER JOIN dustbins on dustbins.id=assign_group_vehicle.did INNER JOIN warehouses on warehouses.id=assign_group_vehicle.wid WHERE assign_group_vehicle.wid=?',[wid],function(error,data) {
+                if (error) throw error;                
+                var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
+                db.query('SELECT warehouses.name as wname,dustbins.name, dustbins.gsm_moblie_number, dustbins.address, assign_group_vehicle.*  FROM `assign_group_vehicle` INNER JOIN dustbins on dustbins.id=assign_group_vehicle.did INNER JOIN warehouses on warehouses.id=assign_group_vehicle.wid WHERE assign_group_vehicle.wid=? LIMIT '+start_index+', '+items_per_page+'',[wid], function (error, results) {
+                    if (error) {
+                    callback(error,null);
+                    }
+                    else{
+                        var obj={
+                            data:results,
+                            totalpage:parseInt(total_pages),
+                            totalrecoard:parseInt(data[0].total)
+                        }
+                        callback(obj,null);
+                }
+             });
+
+
+            });
+        }
+        else if(selectdate!=="" && wid=="" && dataperfrom==""){
+           
+            db.query('SELECT count(*) as total FROM `assign_group_vehicle` INNER JOIN dustbins on dustbins.id=assign_group_vehicle.did INNER JOIN warehouses on warehouses.id=assign_group_vehicle.wid WHERE Date(assign_group_vehicle.assigndate)=?',[selectdate],function(error,data) {
+                if (error) throw error;                
+                var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
+                db.query('SELECT warehouses.name as wname,dustbins.name, dustbins.gsm_moblie_number, dustbins.address, assign_group_vehicle.*  FROM `assign_group_vehicle` INNER JOIN dustbins on dustbins.id=assign_group_vehicle.did INNER JOIN warehouses on warehouses.id=assign_group_vehicle.wid WHERE Date(assign_group_vehicle.assigndate)=? LIMIT '+start_index+', '+items_per_page+'',[selectdate], function (error, results) {
+                    if (error) {
+                    callback(error,null);
+                    }
+                    else{
+                        var obj={
+                            data:results,
+                            totalpage:parseInt(total_pages),
+                            totalrecoard:parseInt(data[0].total)
+                        }
+                        callback(obj,null);
+                }
+             });
+
+
+            });
+        }
+
+    
+        
+
+
+        else if(dataperfrom!=="" && selectdate=="" && wid==""){
+            
+            db.query('SELECT count(*) as total FROM `assign_group_vehicle` INNER JOIN dustbins on dustbins.id=assign_group_vehicle.did INNER JOIN warehouses on warehouses.id=assign_group_vehicle.wid WHERE  assign_group_vehicle.dustbindatapercentage BETWEEN 0 and ?',[dataperfrom],function(error,data) {
+                if (error) throw error;                
+                var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
+                db.query('SELECT warehouses.name as wname,dustbins.name, dustbins.gsm_moblie_number, dustbins.address, assign_group_vehicle.*  FROM `assign_group_vehicle` INNER JOIN dustbins on dustbins.id=assign_group_vehicle.did INNER JOIN warehouses on warehouses.id=assign_group_vehicle.wid WHERE assign_group_vehicle.dustbindatapercentage BETWEEN 0  and ? LIMIT '+start_index+', '+items_per_page+'',[dataperfrom], function (error, results) {
+                    if (error) {
+                    callback(error,null);
+                    }
+                    else{
+                        var obj={
+                            data:results,
+                            totalpage:parseInt(total_pages),
+                            totalrecoard:parseInt(data[0].total)
+                        }
+                        callback(obj,null);
+                }
+             });
+
+
+            });
+        }
+      
+        else{
+            
+            db.query('SELECT count(*) as total FROM `assign_group_vehicle`  INNER JOIN dustbins on dustbins.id=assign_group_vehicle.did INNER JOIN warehouses on warehouses.id=assign_group_vehicle.wid',function(error,data) {
+                if (error) throw error;                
+                var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
+                db.query('SELECT warehouses.name as wname,dustbins.name, dustbins.gsm_moblie_number, dustbins.address, assign_group_vehicle.* FROM `assign_group_vehicle`  INNER JOIN dustbins on dustbins.id=assign_group_vehicle.did INNER JOIN warehouses on warehouses.id=assign_group_vehicle.wid LIMIT '+start_index+', '+items_per_page+'', function (error, results) {
+                    if (error) {
+                    callback(error,null);
+                    }
+                    else{
+                        var obj={
+                            data:results,
+                            totalpage:parseInt(total_pages),
+                            totalrecoard:parseInt(data[0].total)
+                        }
+                        callback(obj,null);
+                }
+             });
+
+
+            });
+        }
+           
+       
+    },
 
 
 

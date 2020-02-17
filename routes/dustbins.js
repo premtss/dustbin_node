@@ -350,18 +350,18 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                 res.status(422).send({ success:false,message: 'Warehouses ID  is required!' });
             }
            
-            else if(req.body.did==undefined || req.body.did==""){
-                res.status(422).send({ success:false,message: 'Dustbin ID  is required!' });
+            else if(req.body.dustbin==undefined || req.body.dustbin==""){
+                res.status(422).send({ success:false,message: 'dustbin Data  is required!' });
             }
             else if(req.body.assigndate==undefined ||req.body.assigndate==""){
                 res.status(422).send({ success:false,message: 'Assign date  is required!' });
             
             }
         else{
-            console.log(req.body.did);
-                for(var x=0;x<req.body.did.length;x++){
-                    if((parseInt(req.body.did.length)-1)==x){
-                        dustbinCtrl.assignVehicledustbins(req.body.groupname,req.body.wid,req.body.did[x],req.body.assigndate, dataResults=>{
+
+                for(var x=0;x<req.body.dustbin.length;x++){
+                    if((parseInt(req.body.dustbin.length)-1)==x){
+                        dustbinCtrl.assignVehicledustbins(req.body.groupname,req.body.wid,req.body.dustbin[x].did,req.body.dustbin[x].dataDustbin,req.body.assigndate, dataResults=>{
                            
                             dustbinCtrl.updateavlableVehicle(dataResults,1, dataRes=>{
                                 res.status(200).send({ success:true,message:"SuccessFully", dataResults });
@@ -372,8 +372,8 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                         
 
                     }else{
-                        dustbinCtrl.assignVehicledustbins(req.body.groupname,req.body.wid,req.body.did[x],req.body.assigndate, dataResult=>{
-                          console.log(dataResult);
+                        dustbinCtrl.assignVehicledustbins(req.body.groupname,req.body.wid,req.body.dustbin[x].did,req.body.dustbin[x].dataDustbin,req.body.assigndate, dataResult=>{
+                          //console.log(dataResult);
                         });
 
                     }
@@ -436,7 +436,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
     });
  });
 
- function googleMapgroup(Groupstatus,assigndate,GroupName,vehicleID,VehicleName,VehicleRC,driverName,drivermobile,driverphoto,id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,objData){
+ function googleMapgroup(Groupstatus,assigndate,GroupName,vehicleID,VehicleName,VehicleRC,driverName,drivermobile,driverphoto,id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,dustbindatapercentage,objData){
     
     googleMapsClient.distanceMatrix({
         origins: {lat:warelatitude,lng:warelongitute},
@@ -469,7 +469,8 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                 "warelongitute": warelongitute,
                 "warehouseaddress": warehouseaddress,
                 "distance":response.json.rows[0].elements[0].distance.text,
-                "duration":response.json.rows[0].elements[0].duration.text
+                "duration":response.json.rows[0].elements[0].duration.text,
+                "dustbindatapercentage":dustbindatapercentage
              });
              return;
            
@@ -524,7 +525,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                  dustbinCtrl.dustbinGroupSingleData(req.body.groupid, result=>{
                     var dataa=[];
                     for(var i=0; i<result.length; i++){ 
-                        googleMapgroup(result[i].Groupstatus,result[i].assigndate,result[i].GroupName,result[i].vehicleID,result[i].modelName,result[i].vehicle_rc,result[i].drivername,result[i].mobile_no,result[i].driver_image,result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,call=>{                     
+                        googleMapgroup(result[i].Groupstatus,result[i].assigndate,result[i].GroupName,result[i].vehicleID,result[i].modelName,result[i].vehicle_rc,result[i].drivername,result[i].mobile_no,result[i].driver_image,result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,result[i].dustbindatapercentage,call=>{                     
                           dataa.push(call);
                         });        
                     }
@@ -534,6 +535,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                             return element.GroupName;
                          });
                         const dustbinData = _.map(grouping, (items, warehouse) => ({
+                            
                                 Groupstatus:items[0].Groupstatus,
                                 groupName:warehouse, 
                                 warehousename:items[0].wname,
@@ -548,6 +550,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                                 vehicleID:items[0].vehicleID,
                                 data: items
                         }));
+                     
                            res.status(200).send({ success:true,message:"SuccessFully", dustbinData });
 
 
@@ -787,6 +790,29 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                     }
               });
      });
+
+
+
+     router.post('/v1/dustbinhistory',verify.token,verify.blacklisttoken, function(req, res) {
+        jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+            if(err){   
+                  res.status(401).send({success:false,message:"Unauthorized Token"});                  
+            }else{
+
+                var selectdate=req.body.selectdate || "";
+                var wid=req.body.wid || "";
+                var dataperfrom=req.body.dataperfrom || "";
+             
+               dustbinCtrl.getAlldustbinsHistory(req.body.page,req.body.perpage,selectdate,wid,dataperfrom, dresult => { 
+                 
+                    res.status(200).send({ success:true,message: 'Successfully!', data:dresult.data, totalpage:dresult.totalpage,totalrecoard:dresult.totalrecoard,recordfound:dresult.data.length});
+               
+                });
+                    }
+              });
+     });
+
+
 
 
       return router;
