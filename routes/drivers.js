@@ -195,7 +195,7 @@ router.post('/v1/drivernotassignlist',verify.token,verify.blacklisttoken, (req,r
                 
                 if(resultSet==1){
                     driverCtrl.addNewDriver(req.body.drivername,req.body.email,req.body.mobileno,req.body.nationality,req.body.caddress,req.body.ccity,req.body.cstate,req.body.ccountry,req.body.cpobox,req.body.crefname,req.body.crefno,req.body.paddress,req.body.pcity,req.body.pstate,req.body.pcountry,req.body.ppobox,req.body.prefname,req.body.prefno,req.body.passportissuedate,req.body.passportexpiredate,req.files['passportimage'][0].filename,req.body.nationalidissuedate,req.body.nationalidexpiredate,req.files['nationalidimage'][0].filename,req.body.drivinglicissuedate,req.body.drivinglicexpiredate,req.files['drivinglicimage'][0].filename,req.body.visaissuedate,req.body.visaexpiredate,req.files['visaimage'][0].filename,req.files['driverimage'][0].filename,result => {
-                        res.status(201).send({ message: result}); 
+                        res.status(201).send({ success:true,message: result}); 
                     });
                 }else{
                     res.status(200).send({ success:false, message:"Driver Mobile Number is already exist! Please enter correct your Mobile Number"}); 
