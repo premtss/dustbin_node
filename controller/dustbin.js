@@ -428,7 +428,7 @@ const googleMapsClient = require('@google/maps').createClient({
                                         vehiclesTotal:vehiclesCount[0].Vtotal,
                                         driversTotal:driversCount[0].Drtotal,
                                         todaypicup:todaypicupCount.length,
-                                        allpicup:allCount[0].allpicup,
+                                        allpicup:allCount.length,
                                         googleDustbinMapMarker:results,
                                         googleWarehouseMapMarker:warehouseresults,
                                         todaypicuplist:groupresults
