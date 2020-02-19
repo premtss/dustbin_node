@@ -4,14 +4,54 @@ const db = require('../DbConnection');
   //create class
 var vehicles = {
 
-    getAllVehiclesItems:function(limit,offset,status,callback){
+    getAllVehiclesItems:function(limit,offset,status,avablitystatus,callback){
 
                 var current_page = limit || 1;
                 var items_per_page = offset || 10;
                 var start_index = (current_page - 1) * items_per_page;
                 
-                if(status=="" || status==undefined){
+                if(status!=="" && avablitystatus==""){
 
+                    db.query('SELECT count(*) as total FROM vehicles where vehicles.status='+status,function(error,data) {
+                        if (error) throw error;                
+                        var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
+                        db.query('SELECT vehicles.id,vehicles.vehicle_rc,vehicles.model_name,vehicles.status,vehicles.available_status,drivers.name,drivers.mobile_no,drivers.driver_image FROM `vehicles` LEFT JOIN mapping_vehicle_drivers ON (vehicles.id = mapping_vehicle_drivers.vehicle_id) LEFT JOIN drivers ON (mapping_vehicle_drivers.driver_id = drivers.id) where vehicles.status='+status+' LIMIT '+start_index+', '+items_per_page, function (error, results) {
+                            if (error) {
+                            callback(error,null);
+                            }
+                            else{
+                                var obj={
+                                    data:results,
+                                    totalpage:total_pages,
+                                    totalrecoard:parseInt(data[0].total)
+                                }
+                            callback(obj,null);
+                        }
+                     });
+      
+                    });
+                }
+                else if(status=="" && avablitystatus!==""){
+                    db.query('SELECT count(*) as total FROM vehicles where vehicles.available_status='+avablitystatus,function(error,data) {
+                        if (error) throw error;                
+                        var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
+                        db.query('SELECT vehicles.id,vehicles.vehicle_rc,vehicles.model_name,vehicles.status,vehicles.available_status,drivers.name,drivers.mobile_no,drivers.driver_image FROM `vehicles` LEFT JOIN mapping_vehicle_drivers ON (vehicles.id = mapping_vehicle_drivers.vehicle_id) LEFT JOIN drivers ON (mapping_vehicle_drivers.driver_id = drivers.id) where vehicles.available_status='+avablitystatus+' LIMIT '+start_index+', '+items_per_page, function (error, results) {
+                            if (error) {
+                            callback(error,null);
+                            }
+                            else{
+                                var obj={
+                                    data:results,
+                                    totalpage:total_pages,
+                                    totalrecoard:parseInt(data[0].total)
+                                }
+                            callback(obj,null);
+                        }
+                     });
+      
+                    });
+                }
+                else{
                     db.query('SELECT count(*) as total FROM vehicles',function(error,data) {
                         if (error) throw error;                
                         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
@@ -30,25 +70,6 @@ var vehicles = {
                      });
     
     
-                    });
-                }else{
-                    db.query('SELECT count(*) as total FROM vehicles where vehicles.status='+status,function(error,data) {
-                        if (error) throw error;                
-                        var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
-                        db.query('SELECT vehicles.id,vehicles.vehicle_rc,vehicles.model_name,vehicles.status,vehicles.available_status,drivers.name,drivers.mobile_no,drivers.driver_image FROM `vehicles` LEFT JOIN mapping_vehicle_drivers ON (vehicles.id = mapping_vehicle_drivers.vehicle_id) LEFT JOIN drivers ON (mapping_vehicle_drivers.driver_id = drivers.id) where vehicles.status='+status+' LIMIT '+start_index+', '+items_per_page, function (error, results) {
-                            if (error) {
-                            callback(error,null);
-                            }
-                            else{
-                                var obj={
-                                    data:results,
-                                    totalpage:total_pages,
-                                    totalrecoard:parseInt(data[0].total)
-                                }
-                            callback(obj,null);
-                        }
-                     });
-      
                     });
                 }
             

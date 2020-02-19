@@ -4,14 +4,57 @@ const db = require('../DbConnection');
   //create class
 var vehicles = {
 
-    getAllDriverItems:function(limit,offset,status,callback){
+    getAllDriverItems:function(limit,offset,status,avablitystatus,callback){
 
                 var current_page = limit || 1;
                 var items_per_page = offset || 10;
                 var start_index = (current_page - 1) * items_per_page;
                 
-                if(status=="" || status==undefined){
+                if(status!=="" && avablitystatus==""){
 
+                    db.query('SELECT count(*) as total FROM drivers where status='+status,function(error,data) {
+                        if (error) throw error;                
+                        var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
+                        db.query('SELECT * FROM drivers where status='+status+' LIMIT '+start_index+', '+items_per_page, function (error, results) {
+                            if (error) {
+                            callback(error,null);
+                            }
+                            else{
+                                var obj={
+                                    data:results,
+                                    totalpage:parseInt(total_pages),
+                                    totalrecoard:parseInt(data[0].total)
+                                }
+                            callback(obj,null);
+                        }
+                     });
+      
+                    });
+                }
+                
+                else if(status=="" && avablitystatus!==""){
+                    db.query('SELECT count(*) as total FROM drivers where driverAblible='+avablitystatus,function(error,data) {
+                        if (error) throw error;                
+                        var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
+                        db.query('SELECT * FROM drivers where driverAblible='+avablitystatus+' LIMIT '+start_index+', '+items_per_page, function (error, results) {
+                            if (error) {
+                            callback(error,null);
+                            }
+                            else{
+                                var obj={
+                                    data:results,
+                                    totalpage:parseInt(total_pages),
+                                    totalrecoard:parseInt(data[0].total)
+                                }
+                            callback(obj,null);
+                        }
+                     });
+      
+                    });
+                }
+                
+                
+                else{
                     db.query('SELECT count(*) as total FROM drivers',function(error,data) {
                         if (error) throw error;                
                         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
@@ -30,25 +73,6 @@ var vehicles = {
                      });
     
     
-                    });
-                }else{
-                    db.query('SELECT count(*) as total FROM drivers where status='+status,function(error,data) {
-                        if (error) throw error;                
-                        var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
-                        db.query('SELECT * FROM drivers where status='+status+' LIMIT '+start_index+', '+items_per_page, function (error, results) {
-                            if (error) {
-                            callback(error,null);
-                            }
-                            else{
-                                var obj={
-                                    data:results,
-                                    totalpage:parseInt(total_pages),
-                                    totalrecoard:parseInt(data[0].total)
-                                }
-                            callback(obj,null);
-                        }
-                     });
-      
                     });
                 }
             
@@ -187,5 +211,22 @@ var vehicles = {
             }
          });
     },
+
+
+    driverAvabilityHistory:function(callback){
+        db.query('SELECT drivers.name,drivers.mobile_no,drivers.driver_image,driver_histroys.avilable_time,driver_histroys.avilable_date, driver_histroys.status as avabilityststus FROM driver_histroys INNER JOIN drivers on drivers.id=driver_histroys.driver_id', function (error, results) {
+            if (error) {
+            callback(error,null);
+            }
+            else{
+              callback(results,null);
+             }
+         });
+    },
+
 }
+
+
+
+
 module.exports = vehicles;

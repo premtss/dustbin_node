@@ -123,7 +123,9 @@ router.post('/v1/vehiclelist',verify.token,verify.blacklisttoken, (req,res,next)
               res.status(401).send({success:false,message:"Unauthorized Token"});       
          
         }else{
-        vehicleCtrl.getAllVehiclesItems(req.body.page,req.body.perpage,req.body.vehiclestatus,result => {
+            var vehiclestatus=req.body.vehiclestatus || "";
+            var avablitystatus=req.body.avablitystatus || "";
+        vehicleCtrl.getAllVehiclesItems(req.body.page,req.body.perpage,vehiclestatus,avablitystatus,result => {
             res.status(200).send({ success:true,message: 'Successfully!', result});
         });
     }

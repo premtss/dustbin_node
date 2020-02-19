@@ -55,7 +55,11 @@ router.post('/v1/driverlist',verify.token,verify.blacklisttoken, (req,res,next)=
               res.status(401).send({success:false,message:"Unauthorized Token"});       
          
         }else{
-            driverCtrl.getAllDriverItems(req.body.page,req.body.perpage,req.body.driverstatus,result => {
+            var driverstatus=req.body.driverstatus || "";
+                var avablitystatus=req.body.avablitystatus || "";
+              //console.log(req.body);
+            driverCtrl.getAllDriverItems(req.body.page,req.body.perpage,driverstatus,avablitystatus,result => {
+              //  console.log(result);
             res.status(200).send({ success:true,message: 'Successfully!', result});
         });
     }
