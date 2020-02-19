@@ -107,9 +107,6 @@ var vehicles = {
     
     },
 
-
-
-
     addNewDriver:function(name,email,mobileno,nationality,caddress,ccity,cstate,ccountry,cpobox,crefname,crefno,paddress,pcity,pstate,pcountry,ppobox,prefname,prefno,passportissuedate,passportexpiredate,passportimage,nationalidissuedate,nationalidexpiredate,nationalidimage,drivinglicissuedate,drivinglicexpiredate,drivinglicimage,visaissuedate,visaexpiredate,visaimage,driverimage,callback){
            
             var sqlquery="INSERT INTO drivers(`name`,`email`,`mobile_no`,`app_user_id`,`password`,`nationality`,`c_address`,`c_city`,`c_state`,`c_country`,`c_po_box`,`c_ref_name`,`c_ref_no`,`p_address`,`p_city`,`p_state`,`p_country`,`p_po_box`,`p_ref_name`,`p_ref_no`,`passport_issue_date`,`passport_expire_date`,`passport_image`,`national_id_issue_date`,`national_id_expire_date`,`national_id_image`,`driving_lic_issue_date`,`driving_lic_expire_date`,`driving_lic_image`,`visa_issue_date`,`visa_expire_date`,`visa_image`,`driver_image`,`status`) VALUES ('"+name+"','"+email+"','"+mobileno+"','"+mobileno+"','"+mobileno+"','"+nationality+"','"+caddress+"','"+ccity+"','"+cstate+"','"+ccountry+"','"+cpobox+"','"+crefname+"','"+crefno+"','"+paddress+"','"+pcity+"','"+pstate+"','"+pcountry+"','"+ppobox+"','"+prefname+"','"+prefno+"','"+passportissuedate+"','"+passportexpiredate+"','"+passportimage+"','"+nationalidissuedate+"','"+nationalidexpiredate+"','"+nationalidimage+"','"+drivinglicissuedate+"','"+drivinglicexpiredate+"','"+drivinglicimage+"','"+visaissuedate+"','"+visaexpiredate+"','"+visaimage+"','"+driverimage+"','"+1+"')";
@@ -213,15 +210,57 @@ var vehicles = {
     },
 
 
-    driverAvabilityHistory:function(callback){
-        db.query('SELECT drivers.name,drivers.mobile_no,drivers.driver_image,driver_histroys.avilable_time,driver_histroys.avilable_date, driver_histroys.status as avabilityststus FROM driver_histroys INNER JOIN drivers on drivers.id=driver_histroys.driver_id', function (error, results) {
-            if (error) {
-            callback(error,null);
-            }
-            else{
-              callback(results,null);
-             }
-         });
+    driverAvabilityHistory:function(limit,offset,selectDate,callback){
+
+        var current_page = limit || 1;
+        var items_per_page = offset || 10;
+        var start_index = (current_page - 1) * items_per_page;
+        if(selectDate!=""){
+            db.query('SELECT count(*) as total FROM driver_histroys INNER JOIN drivers on drivers.id=driver_histroys.driver_id WHERE driver_histroys.avilable_date=? LIMIT '+start_index+', '+items_per_page+'',[selectDate],function(error,data) {
+                if (error) throw error;                
+                var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
+
+
+            db.query('SELECT drivers.name,drivers.mobile_no,drivers.driver_image,driver_histroys.avilable_time,driver_histroys.avilable_date, driver_histroys.status as avabilityststus FROM driver_histroys INNER JOIN drivers on drivers.id=driver_histroys.driver_id WHERE driver_histroys.avilable_date=? LIMIT '+start_index+', '+items_per_page+'',[selectDate], function (error, results) {
+                if (error) {
+                callback(error,null);
+                }
+                else{
+                    var obj={
+                        data:results,
+                        totalpage:parseInt(total_pages),
+                        totalrecoard:parseInt(data[0].total)
+                    }
+                    callback(obj,null);
+                 }
+             });
+
+            
+        });
+
+
+        }else{
+
+            db.query('SELECT count(*) as total FROM driver_histroys INNER JOIN drivers on drivers.id=driver_histroys.driver_id  LIMIT '+start_index+', '+items_per_page+'',[selectDate],function(error,data) {
+                if (error) throw error;                
+                var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
+
+            db.query('SELECT drivers.name,drivers.mobile_no,drivers.driver_image,driver_histroys.avilable_time,driver_histroys.avilable_date, driver_histroys.status as avabilityststus FROM driver_histroys INNER JOIN drivers on drivers.id=driver_histroys.driver_id LIMIT '+start_index+', '+items_per_page+'',[selectDate], function (error, results) {
+                if (error) {
+                callback(error,null);
+                }
+                else{
+                    var obj={
+                        data:results,
+                        totalpage:parseInt(total_pages),
+                        totalrecoard:parseInt(data[0].total)
+                    }
+                    callback(obj,null);
+                 }
+             });
+            });
+        }
+
     },
 
 }

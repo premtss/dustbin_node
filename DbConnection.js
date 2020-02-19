@@ -15,4 +15,4 @@ con.connect(function(err) {
 //   if (err) throw err;
 //   console.log("Disconnected!");
 // });
-module.exports = con
+module.exports = con;

@@ -610,4 +610,21 @@ router.put('/v1/updateDriver',verify.token,verify.blacklisttoken,upload.fields([
     });
  });
 
+
+ router.post('/v1/driverlivehistory',verify.token,verify.blacklisttoken, (req,res,next)=>{
+    jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+        if(err){
+
+              res.status(401).send({success:false,message:"Unauthorized Token"});       
+         
+        }else{
+            var selectdate=req.body.selectdate || "";
+          
+            driverCtrl.driverAvabilityHistory(req.body.page,req.body.perpage,selectdate,result => {
+            res.status(200).send({ success:true,message: 'Successfully!', result});
+        });
+    }
+    });
+ });
+
 module.exports = router;
