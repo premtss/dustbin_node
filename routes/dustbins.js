@@ -177,10 +177,11 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
                     });  
                
                 }
-                var vehicleData=[];
-                var dustbinData=[];
                 
-                setTimeout(function () {        
+                
+                setTimeout(function () {
+                    var vehicleData=[];
+                  var dustbinData=[];        
                      vehicleData=removeDuplicates(removearr,'warehouse_Id');   
                       const grouping = _.groupBy(dataa, function(element){
                         return element.warehouseaddress;
@@ -194,7 +195,7 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
                             data: items
                     }));
                         
-                    res.status(200).send({ success:true,message: 'Successfully!', dustbinData,totalpage:result.totalpage,totalrecoard:result.totalrecoard});
+                    res.status(200).send({ success:true,message: 'Successfully!', dustbinData,totalpage:result.totalpage,totalrecoard:result.totalrecoard,vehicleData});
                 },1000) ;
                 // setTimeout(function () { 
                 // for(var x=0;x<vehicleData.length;x++){
