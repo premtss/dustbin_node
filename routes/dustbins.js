@@ -407,7 +407,8 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                             for(var x=0;x<dustbinData.length;x++){         
                                 if(dustbinData[x].vehicleID==0){
                                     finalData.push(dustbinData[x]);
-                                    WareHouseData.push({warehouseID:dustbinData[x].warehouseID,groupId:dustbinData[x].groupName})    
+                                    //console.log(dustbinData[x].datacount)
+                                    WareHouseData.push({warehouseID:dustbinData[x].warehouseID,groupId:dustbinData[x].groupName,dustbincount:dustbinData[x].datacount})    
                                  }
                              }
 
@@ -444,8 +445,14 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                             setTimeout(()=>{
                                 if(WareHouseData.length>0){
                                     for(var i=0;i<WareHouseData.length;i++){    
-                                        dustbinCtrl.vehicleAutoAvaliblePerWarehouse(WareHouseData[i].warehouseID, results => {          
-                                            if(results.length>0){  
+                                        
+                                        dustbinCtrl.vehicleAutoAvaliblePerWarehouse(WareHouseData[i].warehouseID, results => { 
+                                            for(var ii=0;ii<WareHouseData.length;ii++){  
+                                          //  console.log(results[0].capacity,"<===>",WareHouseData[ii].dustbincount);
+                                   // return false;
+                                            if(results.length>0 && WareHouseData[ii].dustbincount <=results[0].capacity){  
+
+
                                                  dustbinCtrl.updateavlablevehiclegroupDustbin(results[0].vehicleID,results[0].groupid,Dataresult => {
                                                     dustbinCtrl.updateassignrdeVehicle(results[0].vehicleID,data=>{ 
                                                          dustbinCtrl.Driveravaviltyhistory(results[0].DriverID,0,datahistory=>{      
@@ -453,8 +460,12 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
 
                                                     });
                                                  });
+
+
                                            
                                             }
+                                        }
+
                                         });
     
     
@@ -471,95 +482,95 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
  });
 
 
-  cron.schedule('* * * * *', () => {
-      //console.log("kkkkk");
-    var finalData=[];
-    var WareHouseData=[];
-    dustbinCtrl.dustbinGroupDataNew(result => {    
-       const grouping = _.groupBy(result, function(element){
-                            return element.GroupName;
-              });
-            const dustbinData = _.map(grouping, (items, groupName) => ({
-                                Groupstatus:items[0].Groupstatus,
-                                groupName:groupName, 
-                                vehicleID:items[0].vehicleID,
-                                warehousename:items[0].wname,
-                                warehouseaddress: items[0].warehouseaddress,   
-                                datacount: items.length,
-                                dataassignDate:items[0].assigndate,
-                                Drivername:"NA",
-                                DriverPhoto:"NA",
-                                Drivermobile:"NA",
-                                VehicleName:"NA",
-                                VehicleRC:"NA",
-                                warehouseID:items[0].warehouse_id,
-                                driverAblible:0
-                 }));
+//   cron.schedule('* * * * *', () => {
+//       //console.log("kkkkk");
+//     var finalData=[];
+//     var WareHouseData=[];
+//     dustbinCtrl.dustbinGroupDataNew(result => {    
+//        const grouping = _.groupBy(result, function(element){
+//                             return element.GroupName;
+//               });
+//             const dustbinData = _.map(grouping, (items, groupName) => ({
+//                                 Groupstatus:items[0].Groupstatus,
+//                                 groupName:groupName, 
+//                                 vehicleID:items[0].vehicleID,
+//                                 warehousename:items[0].wname,
+//                                 warehouseaddress: items[0].warehouseaddress,   
+//                                 datacount: items.length,
+//                                 dataassignDate:items[0].assigndate,
+//                                 Drivername:"NA",
+//                                 DriverPhoto:"NA",
+//                                 Drivermobile:"NA",
+//                                 VehicleName:"NA",
+//                                 VehicleRC:"NA",
+//                                 warehouseID:items[0].warehouse_id,
+//                                 driverAblible:0
+//                  }));
                  
-                    for(var x=0;x<dustbinData.length;x++){         
-                        if(dustbinData[x].vehicleID==0){
-                            finalData.push(dustbinData[x]);
-                            WareHouseData.push({warehouseID:dustbinData[x].warehouseID,groupId:dustbinData[x].groupName})    
-                         }
-                     }
+//                     for(var x=0;x<dustbinData.length;x++){         
+//                         if(dustbinData[x].vehicleID==0){
+//                             finalData.push(dustbinData[x]);
+//                             WareHouseData.push({warehouseID:dustbinData[x].warehouseID,groupId:dustbinData[x].groupName})    
+//                          }
+//                      }
 
-                     dustbinCtrl.dustbinGroupData(results => { 
-                        const grouping = _.groupBy(results, function(element){
-                            return element.GroupName;
-                        });
-                     const dustbinData2 = _.map(grouping, (items, groupName) => ({
-                                Groupstatus:items[0].Groupstatus,
-                                groupName:groupName, 
-                                vehicleID:items[0].vehicleID,
-                                warehousename:items[0].wname,
-                                warehouseaddress: items[0].warehouseaddress,   
-                                datacount: items.length,
-                                dataassignDate:items[0].assigndate,
-                                Drivername:items[0].drivername,
-                                DriverPhoto:items[0].driver_image,
-                                Drivermobile:items[0].mobile_no,
-                                VehicleName:items[0].modelName,
-                                VehicleRC:items[0].vehicle_rc,
-                                warehouseID:items[0].warehouse_id,
-                                driverAblible:items[0].driverAblible
+//                      dustbinCtrl.dustbinGroupData(results => { 
+//                         const grouping = _.groupBy(results, function(element){
+//                             return element.GroupName;
+//                         });
+//                      const dustbinData2 = _.map(grouping, (items, groupName) => ({
+//                                 Groupstatus:items[0].Groupstatus,
+//                                 groupName:groupName, 
+//                                 vehicleID:items[0].vehicleID,
+//                                 warehousename:items[0].wname,
+//                                 warehouseaddress: items[0].warehouseaddress,   
+//                                 datacount: items.length,
+//                                 dataassignDate:items[0].assigndate,
+//                                 Drivername:items[0].drivername,
+//                                 DriverPhoto:items[0].driver_image,
+//                                 Drivermobile:items[0].mobile_no,
+//                                 VehicleName:items[0].modelName,
+//                                 VehicleRC:items[0].vehicle_rc,
+//                                 warehouseID:items[0].warehouse_id,
+//                                 driverAblible:items[0].driverAblible
                                
     
-                      }));
-                      for(var xx=0;xx<dustbinData2.length;xx++){         
-                        if(dustbinData2[xx].vehicleID!==0){
-                            finalData.push(dustbinData2[xx]); 
-                        }
-                    }
+//                       }));
+//                       for(var xx=0;xx<dustbinData2.length;xx++){         
+//                         if(dustbinData2[xx].vehicleID!==0){
+//                             finalData.push(dustbinData2[xx]); 
+//                         }
+//                     }
 
-                    });
+//                     });
 
-                    setTimeout(()=>{
-                        if(WareHouseData.length>0){
-                            for(var i=0;i<WareHouseData.length;i++){    
-                                dustbinCtrl.vehicleAutoAvaliblePerWarehouse(WareHouseData[i].warehouseID, results => {          
-                                    if(results.length>0){  
-                                         dustbinCtrl.updateavlablevehiclegroupDustbin(results[0].vehicleID,results[0].groupid,Dataresult => {
-                                            dustbinCtrl.updateassignrdeVehicle(results[0].vehicleID,data=>{ 
-                                                 dustbinCtrl.Driveravaviltyhistory(results[0].DriverID,0,datahistory=>{      
-                                                 });
+//                     setTimeout(()=>{
+//                         if(WareHouseData.length>0){
+//                             for(var i=0;i<WareHouseData.length;i++){    
+//                                 dustbinCtrl.vehicleAutoAvaliblePerWarehouse(WareHouseData[i].warehouseID, results => {          
+//                                     if(results.length>0){  
+//                                          dustbinCtrl.updateavlablevehiclegroupDustbin(results[0].vehicleID,results[0].groupid,Dataresult => {
+//                                             dustbinCtrl.updateassignrdeVehicle(results[0].vehicleID,data=>{ 
+//                                                  dustbinCtrl.Driveravaviltyhistory(results[0].DriverID,0,datahistory=>{      
+//                                                  });
 
-                                            });
-                                         });
+//                                             });
+//                                          });
                                    
-                                    }
-                                });
+//                                     }
+//                                 });
 
 
-                            }
+//                             }
 
-                        }
-                        io.sockets.emit('group_dataDustbin', finalData);
-                       // res.status(200).send({ success:true,message: 'Successfully!',finalData,WareHouseData});
+//                         }
+//                         io.sockets.emit('group_dataDustbin', finalData);
+//                        // res.status(200).send({ success:true,message: 'Successfully!',finalData,WareHouseData});
 
-                    },1500)
-    });
+//                     },1500)
+//     });
    
-   });
+//    });
 
 
 

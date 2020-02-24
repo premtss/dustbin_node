@@ -818,47 +818,64 @@ else if(dataper!=="" && wid==""){
             else{   
        
              if(results.length>0){
-                var sqlquery1 = "SELECT drivers.id as DriverId FROM vehicles INNER JOIN mapping_vehicle_drivers on vehicles.id=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id where mapping_vehicle_drivers.vehicle_id=?";  
-               db.query(sqlquery1,[results[0].vid], function (error, results1) {
-                   if (error) {
-                   callback(error,null);
-                   }
-                   else{
 
-                    var sqlquery2 = "UPDATE vehicles set available_status=0 WHERE id = ?"; 
-                    db.query(sqlquery2,[results[0].vid], function (error, results2) {
+                 if(results[0].vid>0){
+
+                    var sqlquery1 = "SELECT drivers.id as DriverId FROM vehicles INNER JOIN mapping_vehicle_drivers on vehicles.id=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id where mapping_vehicle_drivers.vehicle_id=?";  
+                    db.query(sqlquery1,[results[0].vid], function (error, results1) {
                         if (error) {
                         callback(error,null);
                         }
-
-                        var sqlquery3 = "UPDATE drivers set driverAblible=0 WHERE id=?";
-                            db.query(sqlquery3,[results1[0].DriverId], function (error, results3) {
-                                if (error) {
-                                callback(error,null);
-                                }
-                                dustbin.Driveravaviltyhistory(results1[0].DriverId,1,driverData1=>{
-                                    //callback(driverData1,null);
-                                });
-
-                                dustbin.updateavlablevehiclegroupDustbin(vid,groupID,data=>{
-
-                                    dustbin.updateassignrdeVehicle(vid,returnDriverID=>{
-
-                                        dustbin.Driveravaviltyhistory(returnDriverID,0,driverData=>{
-                                            callback(data,null);
-                                        });
-                                            
-                                    });
-                                })
-                               
+                        else{
+                         console.log(results[0].capacity);
+                         //console.log(results[0].capacity);
+     
+                         var sqlquery2 = "UPDATE vehicles set available_status=0 WHERE id = ?"; 
+                         db.query(sqlquery2,[results[0].vid], function (error, results2) {
+                             if (error) {
+                             callback(error,null);
+                             }
+     
+                             var sqlquery3 = "UPDATE drivers set driverAblible=0 WHERE id=?";
+                                 db.query(sqlquery3,[results1[0].DriverId], function (error, results3) {
+                                     if (error) {
+                                     callback(error,null);
+                                     }
+                                     dustbin.Driveravaviltyhistory(results1[0].DriverId,1,driverData1=>{
+                                         //callback(driverData1,null);
+                                     });
+     
+                                     dustbin.updateavlablevehiclegroupDustbin(vid,groupID,data=>{
+     
+                                         dustbin.updateassignrdeVehicle(vid,returnDriverID=>{
+     
+                                             dustbin.Driveravaviltyhistory(returnDriverID,0,driverData=>{
+                                                 callback(data,null);
+                                             });
+                                                 
+                                         });
+                                     })
+                                    
+         
+                                 });
+                             
+                             });
+     
+     
+                        }
+                     });
+                 }else{
+                    dustbin.updateavlablevehiclegroupDustbin(vid,groupID,data=>{
+                        dustbin.updateassignrdeVehicle(vid,returnDriverID=>{
     
+                            dustbin.Driveravaviltyhistory(returnDriverID,0,driverData=>{
+                                callback(data,null);
                             });
-                        
-                        });
-
-
-                   }
-                });
+                                
+                        });            
+                    }); 
+                 }
+              
 
              }else{
 

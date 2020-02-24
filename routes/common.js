@@ -11,8 +11,7 @@ module.exports.blacklisttoken=function(req,res,next){
             if(results[0]==undefined){
                 next(); 
             }else{ 
-               
-                res.status(401).send({success:false, message:"Invalid token",logoutstatus:true });
+             res.status(401).send({success:false, message:"Invalid token",logoutstatus:true });
             }
         });
       
