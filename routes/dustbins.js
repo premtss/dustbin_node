@@ -168,12 +168,12 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
                 var removearr=[];
                
                 for(var i=0; i<result.data.length; i++){           
-                                  
+                    dustbinCtrl.vehicleAvaliblePerWarehouseCount(result.data[i].warehouse_id, dresult => {           
+                        removearr.push(dresult);         
+                      });          
                     googleMap(result.data[i].id,result.data[i].warehouse_id,result.data[i].name,result.data[i].wname,result.data[i].latiude,result.data[i].longitude,result.data[i].address,result.data[i].status,result.data[i].gsm_moblie_number,result.data[i].data_percentage,result.data[i].warelatitude,result.data[i].warelongitute,result.data[i].warehouseaddress,call=>{                     
                       dataa.push(call);
-                      dustbinCtrl.vehicleAvaliblePerWarehouseCount(result.data[i].warehouse_id, dresult => {           
-                          removearr.push(dresult);         
-                        });  
+                        
                     });  
                
                 }
