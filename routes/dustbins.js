@@ -159,11 +159,20 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
             dustbinCtrl.dustbinfiltertypenew(req.body.page,req.body.perpage,wid,dataperfrom,result => { 
             
                 var dataa=[];
+                var vehicleData=[];
+              //  setTimeout(function () { 
                 for(var i=0; i<result.data.length; i++){ 
+               
+                   dustbinCtrl.vehicleAvaliblePerWarehouseCount(result.data[i].warehouse_id, dresult => {   
+                       vehicleData.push(dresult);     
+                    });
+                                 
                     googleMap(result.data[i].id,result.data[i].warehouse_id,result.data[i].name,result.data[i].wname,result.data[i].latiude,result.data[i].longitude,result.data[i].address,result.data[i].status,result.data[i].gsm_moblie_number,result.data[i].data_percentage,result.data[i].warelatitude,result.data[i].warelongitute,result.data[i].warehouseaddress,call=>{                     
                       dataa.push(call);
-                    });        
+                    });  
+               
                 }
+           // },100); 
                  setTimeout(function () { 
                     
                       const grouping = _.groupBy(dataa, function(element){
@@ -178,7 +187,7 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
                             data: items
                     }));
 
-                   res.status(200).send({ success:true,message: 'Successfully!', dustbinData,totalpage:result.totalpage,totalrecoard:result.totalrecoard});
+                   res.status(200).send({ success:true,message: 'Successfully!', dustbinData,totalpage:result.totalpage,totalrecoard:result.totalrecoard,vehicleData});
                   },1000) ;
 
 
@@ -347,15 +356,18 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
           
                 for(var x=0;x<req.body.dustbin.length;x++){
 
+                    if(req.body.dustbin.length-1==x){
                         dustbinCtrl.assignPicupgroupdustbins(req.body.groupname,req.body.wid,req.body.dustbin[x].did,req.body.dustbin[x].dataDustbin,req.body.assigndate, dataResult=>{
                             res.status(200).send({ success:true,message:"SuccessFully", dataResult });
                         });
+                    }else{
+                        dustbinCtrl.assignPicupgroupdustbins(req.body.groupname,req.body.wid,req.body.dustbin[x].did,req.body.dustbin[x].dataDustbin,req.body.assigndate, dataResult=>{
+                          //  res.status(200).send({ success:true,message:"SuccessFully", dataResult });
+                        });
+                    }
+                        
 
-                     
-                
-               
-
-            }
+                 }
             
          }
         }
@@ -387,7 +399,9 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                                         Drivermobile:"NA",
                                         VehicleName:"NA",
                                         VehicleRC:"NA",
-                                        warehouseID:items[0].warehouse_id
+                                        warehouseID:items[0].warehouse_id,
+                                        driverAblible:0
+                                        
                          }));
                          
                             for(var x=0;x<dustbinData.length;x++){         
@@ -414,7 +428,8 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                                         Drivermobile:items[0].mobile_no,
                                         VehicleName:items[0].modelName,
                                         VehicleRC:items[0].vehicle_rc,
-                                        warehouseID:items[0].warehouse_id
+                                        warehouseID:items[0].warehouse_id,
+                                        driverAblible:items[0].driverAblible,
                                        
             
                               }));
@@ -433,7 +448,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                                             if(results.length>0){  
                                                  dustbinCtrl.updateavlablevehiclegroupDustbin(results[0].vehicleID,results[0].groupid,Dataresult => {
                                                     dustbinCtrl.updateassignrdeVehicle(results[0].vehicleID,data=>{ 
-                                                         dustbinCtrl.Driveravaviltyhistory(results[0].DriverID,datahistory=>{      
+                                                         dustbinCtrl.Driveravaviltyhistory(results[0].DriverID,0,datahistory=>{      
                                                          });
 
                                                     });
@@ -477,7 +492,8 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                                 Drivermobile:"NA",
                                 VehicleName:"NA",
                                 VehicleRC:"NA",
-                                warehouseID:items[0].warehouse_id
+                                warehouseID:items[0].warehouse_id,
+                                driverAblible:0
                  }));
                  
                     for(var x=0;x<dustbinData.length;x++){         
@@ -504,7 +520,8 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                                 Drivermobile:items[0].mobile_no,
                                 VehicleName:items[0].modelName,
                                 VehicleRC:items[0].vehicle_rc,
-                                warehouseID:items[0].warehouse_id
+                                warehouseID:items[0].warehouse_id,
+                                driverAblible:items[0].driverAblible
                                
     
                       }));
@@ -523,7 +540,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                                     if(results.length>0){  
                                          dustbinCtrl.updateavlablevehiclegroupDustbin(results[0].vehicleID,results[0].groupid,Dataresult => {
                                             dustbinCtrl.updateassignrdeVehicle(results[0].vehicleID,data=>{ 
-                                                 dustbinCtrl.Driveravaviltyhistory(results[0].DriverID,datahistory=>{      
+                                                 dustbinCtrl.Driveravaviltyhistory(results[0].DriverID,0,datahistory=>{      
                                                  });
 
                                             });
@@ -963,6 +980,53 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                 }
             });
      });
+
+
+     router.post('/v1/manualReassignPickup',verify.token,verify.blacklisttoken, function(req, res) {
+        jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+            if(err){   
+                  res.status(401).send({success:false,message:"Unauthorized Token"});                  
+            }else{
+                if(req.body.groupid==undefined ||req.body.groupid==""){
+                    res.status(422).send({ success:false,message: 'groupid ID  is required!' });
+                }
+                else if(req.body.vid==undefined ||req.body.vid==""){
+                    res.status(422).send({ success:false,message: 'Vehicle ID  is required!' });
+                }
+                
+                else{ 
+             
+                    dustbinCtrl.reAssignVehiclePicupID(req.body.groupid,req.body.vid, dresult => {                
+                            res.status(200).send({ success:true,message: 'Successfully!', dresult});
+                    
+                        });
+                    }
+                }
+            });
+     });
+
+     router.post('/v1/vehicleCountAvabile',verify.token,verify.blacklisttoken, function(req, res) {
+        jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+            if(err){   
+                  res.status(401).send({success:false,message:"Unauthorized Token"});                  
+            }else{
+                if(req.body.wid==undefined ||req.body.wid==""){
+                    res.status(422).send({ success:false,message: 'wid ID  is required!' });
+                }
+
+                else{ 
+             
+                    dustbinCtrl.vehicleAvaliblePerWarehouseCount(req.body.wid, dresult => {                
+                            res.status(200).send({ success:true,message: 'Successfully!', dresult});
+                    
+                        });
+                    }
+                }
+            });
+     });
+
+
+
 
 
 

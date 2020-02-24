@@ -9,13 +9,13 @@ var vehicles = {
                 var current_page = limit || 1;
                 var items_per_page = offset || 10;
                 var start_index = (current_page - 1) * items_per_page;
-                
+                //SELECT IFNULL(vehicles.id, 0) as VehicleID,vehicles.model_name,vehicles.mgf_year,vehicles.capacity,vehicles.vehicle_rc, drivers.* FROM drivers LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.driver_id=drivers.id LEFT JOIN vehicles on vehicles.id=mapping_vehicle_drivers.vehicle_id where status=
                 if(status!=="" && avablitystatus==""){
 
                     db.query('SELECT count(*) as total FROM drivers where status='+status,function(error,data) {
                         if (error) throw error;                
                         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
-                        db.query('SELECT * FROM drivers where status='+status+' LIMIT '+start_index+', '+items_per_page, function (error, results) {
+                        db.query('SELECT drivers.*, IFNULL((select vehicle_id from mapping_vehicle_drivers as mvd where mvd.driver_id = drivers.id and status = 1),0) as VehicleID, (select model_name from vehicles where id = VehicleID) as model_name, (select vehicle_rc from vehicles where id = VehicleID) as vehicle_rc, (select mgf_year from vehicles where id = VehicleID) as mgf_year, (select capacity from vehicles where id = VehicleID) as capacity FROM `drivers` where status='+status+' LIMIT '+start_index+', '+items_per_page, function (error, results) {
                             if (error) {
                             callback(error,null);
                             }
@@ -33,10 +33,11 @@ var vehicles = {
                 }
                 
                 else if(status=="" && avablitystatus!==""){
-                    db.query('SELECT count(*) as total FROM drivers where driverAblible='+avablitystatus,function(error,data) {
+                    //SELECT IFNULL(vehicles.id, 0) as VehicleID,vehicles.model_name,vehicles.mgf_year,vehicles.capacity,vehicles.vehicle_rc, drivers.* FROM drivers LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.driver_id=drivers.id LEFT JOIN vehicles on vehicles.id=mapping_vehicle_drivers.vehicle_id where driverAblible=
+                    db.query('SELECT count(*) as total FROM drivers where driverAblible='+avablitystatus ,function(error,data) {
                         if (error) throw error;                
                         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
-                        db.query('SELECT * FROM drivers where driverAblible='+avablitystatus+' LIMIT '+start_index+', '+items_per_page, function (error, results) {
+                        db.query('SELECT drivers.*, IFNULL((select vehicle_id from mapping_vehicle_drivers as mvd where mvd.driver_id = drivers.id and status = 1),0) as VehicleID, (select model_name from vehicles where id = VehicleID) as model_name, (select vehicle_rc from vehicles where id = VehicleID) as vehicle_rc, (select mgf_year from vehicles where id = VehicleID) as mgf_year, (select capacity from vehicles where id = VehicleID) as capacity FROM `drivers` where driverAblible='+avablitystatus+' LIMIT '+start_index+', '+items_per_page, function (error, results) {
                             if (error) {
                             callback(error,null);
                             }
@@ -58,7 +59,7 @@ var vehicles = {
                     db.query('SELECT count(*) as total FROM drivers',function(error,data) {
                         if (error) throw error;                
                         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
-                        db.query('SELECT * FROM drivers LIMIT '+start_index+', '+items_per_page+'', function (error, results) {
+                        db.query('SELECT drivers.*, IFNULL((select vehicle_id from mapping_vehicle_drivers as mvd where mvd.driver_id = drivers.id and status = 1),0) as VehicleID, (select model_name from vehicles where id = VehicleID) as model_name, (select vehicle_rc from vehicles where id = VehicleID) as vehicle_rc, (select mgf_year from vehicles where id = VehicleID) as mgf_year, (select capacity from vehicles where id = VehicleID) as capacity FROM `drivers` LIMIT '+start_index+', '+items_per_page+'', function (error, results) {
                             if (error) {
                             callback(error,null);
                             }
@@ -262,6 +263,33 @@ var vehicles = {
         }
 
     },
+    DriverStatusChange:function(driverID,status,callback){
+        db.query("SELECT drivers.driverAblible FROM `drivers` WHERE drivers.id=?",[driverID], function (error, results) {
+               if (error) {
+               callback(error,null);
+               }
+               else{
+                 
+                 if(results[0].driverAblible==0){
+
+                   var sqlquery = "UPDATE drivers set status=? WHERE id= ?";
+                    db.query(sqlquery,[status,driverID], function (error,result) {
+                       if (error) {
+                       callback(error,null);
+                       }
+                       else{    
+                       callback('Record Updated Successfully!',null);
+                   }
+                });
+
+                 }else{
+                   callback('Drivers not Active or Inactive, Because Drivers is alredy assigned PicupID!',null);
+                 }
+           }
+        });
+},
+
+
 
 }
 

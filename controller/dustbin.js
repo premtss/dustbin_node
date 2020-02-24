@@ -319,7 +319,7 @@ else if(dataper!=="" && wid==""){
                                 callback(error,null);
                                 }else{
                                    // console.log("kkkkk")
-                                    callback('Vehicle Assignd!',null);
+                                    callback(resultID[0].DriverId,null);
                                 }
                             });
 
@@ -366,7 +366,7 @@ else if(dataper!=="" && wid==""){
     dustbinGroupData:function(callback){
         //  WHERE dustbins.data_percentage > 61
         
-        var sqlquery ="SELECT drivers.name as drivername,drivers.mobile_no,drivers.driver_image, vehicles.id as vehicleID,vehicles.model_name as modelName,vehicles.vehicle_rc, assign_group_vehicle.groupid as GroupName,assign_group_vehicle.status as Groupstatus,assign_group_vehicle.assigndate, dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.status=1";
+        var sqlquery ="SELECT drivers.driverAblible, drivers.name as drivername,drivers.mobile_no,drivers.driver_image, vehicles.id as vehicleID,vehicles.model_name as modelName,vehicles.vehicle_rc, assign_group_vehicle.groupid as GroupName,assign_group_vehicle.status as Groupstatus,assign_group_vehicle.assigndate, dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.status=1";
         db.query(sqlquery, function (error, results) {
             if (error) {
             callback(error,null);
@@ -742,6 +742,29 @@ else if(dataper!=="" && wid==""){
 
     },
 
+    vehicleAvaliblePerWarehouseCount:function(wid,callback){ 
+              
+        db.query('SELECT count(*) as total FROM vehicles LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE warehouse_mapped_vehicles.warehouse_Id=? and vehicles.available_status=0 and vehicles.status=1 and drivers.status=1 and drivers.driverAblible=0',[wid],function(error,data1) {
+            if (error) throw error;                
+            db.query('SELECT count(*) as total FROM vehicles LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE warehouse_mapped_vehicles.warehouse_Id=? and vehicles.available_status=1 and vehicles.status=1 and drivers.status=1 and drivers.driverAblible=1',[wid],function(error,data) {
+                if (error) throw error;                
+             
+                var obj={
+                    avabileVehicle:data1[0].total,
+                    notavabileVehicle:data[0].total,
+                    warehouse_Id:wid
+                    
+                }
+                callback(obj,null);
+            });
+           
+        });
+      
+    },
+
+
+
+
     vehicleAutoAvaliblePerWarehouse:function(wid,callback){
               db.query('SELECT assign_group_vehicle.groupid, warehouse_mapped_vehicles.warehouse_Id,vehicles.id as vehicleID, vehicles.capacity, vehicles.model_name,vehicles.mgf_year,drivers.name as Drivername,drivers.mobile_no,vehicles.vehicle_rc,drivers.driver_image,drivers.id as DriverID,vehicles.id as VehicleID FROM vehicles LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id LEFT JOIN assign_group_vehicle on assign_group_vehicle.wid=warehouse_mapped_vehicles.warehouse_Id WHERE warehouse_mapped_vehicles.warehouse_Id=? and vehicles.available_status=0 and vehicles.status=1 and drivers.status=1 and drivers.driverAblible=0',[wid], function (error, results) {
                 if (error) {
@@ -782,9 +805,9 @@ else if(dataper!=="" && wid==""){
 
     },
 
-    Driveravaviltyhistory:function(driverid,callback){
+    Driveravaviltyhistory:function(driverid,status,callback){
         //insert into driver_histroys(driver_histroys.driver_id,driver_histroys.avilable_time,driver_histroys.avilable_date) VALUES(1,CURRENT_TIME(),CURRENT_DATE())
-        var sqlquery="INSERT INTO driver_histroys(`driver_id`,`avilable_time`,`avilable_date`) VALUES ('"+driverid+"',CURRENT_TIME(),CURRENT_DATE())";
+        var sqlquery="INSERT INTO driver_histroys(`driver_id`,`avilable_time`,`avilable_date`,status) VALUES ('"+driverid+"',CURRENT_TIME(),CURRENT_DATE(),'"+status+"')";
                  db.query(sqlquery, function (error,result) {
                      if (error) {
                      callback(error,null);
@@ -795,6 +818,81 @@ else if(dataper!=="" && wid==""){
          });
 
  },
+
+
+    reAssignVehiclePicupID:function(groupID,vid,callback){
+
+        var sqlquery ="SELECT vid FROM `assign_group_vehicle` WHERE groupid=? group BY groupid";
+        db.query(sqlquery,[groupID], function (error, results) {
+            if (error) {
+            callback(error,null);
+            }
+            else{   
+       
+             if(results.length>0){
+                var sqlquery1 = "SELECT drivers.id as DriverId FROM vehicles INNER JOIN mapping_vehicle_drivers on vehicles.id=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id where mapping_vehicle_drivers.vehicle_id=?";  
+               db.query(sqlquery1,[results[0].vid], function (error, results1) {
+                   if (error) {
+                   callback(error,null);
+                   }
+                   else{
+
+                    var sqlquery2 = "UPDATE vehicles set available_status=0 WHERE id = ?"; 
+                    db.query(sqlquery2,[results[0].vid], function (error, results2) {
+                        if (error) {
+                        callback(error,null);
+                        }
+
+                        var sqlquery3 = "UPDATE drivers set driverAblible=0 WHERE id=?";
+                            db.query(sqlquery3,[results1[0].DriverId], function (error, results3) {
+                                if (error) {
+                                callback(error,null);
+                                }
+                                dustbin.Driveravaviltyhistory(results1[0].DriverId,1,driverData1=>{
+                                    //callback(driverData1,null);
+                                });
+
+                                dustbin.updateavlablevehiclegroupDustbin(vid,groupID,data=>{
+
+                                    dustbin.updateassignrdeVehicle(vid,returnDriverID=>{
+
+                                        dustbin.Driveravaviltyhistory(returnDriverID,0,driverData=>{
+                                            callback(data,null);
+                                        });
+                                            
+                                    });
+                                })
+                               
+    
+                            });
+                        
+                        });
+
+
+                   }
+                });
+
+             }else{
+
+                dustbin.updateavlablevehiclegroupDustbin(vid,groupID,data=>{
+                    dustbin.updateassignrdeVehicle(vid,returnDriverID=>{
+
+                        dustbin.Driveravaviltyhistory(returnDriverID,0,driverData=>{
+                            callback(data,null);
+                        });
+                            
+                    });            
+                });
+
+               
+             }
+
+
+
+              
+        }
+    });
+    }
 
 
 }

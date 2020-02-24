@@ -133,6 +133,22 @@ router.post('/v1/vehiclelist',verify.token,verify.blacklisttoken, (req,res,next)
  });
 
 
+ router.post('/v1/vehiclelistforassign',verify.token,verify.blacklisttoken, (req,res,next)=>{
+    jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+        if(err){
+
+              res.status(401).send({success:false,message:"Unauthorized Token"});       
+         
+        }else{
+           
+        vehicleCtrl.getAllVehiclesforAssign(req.body.page,req.body.perpage,result => {
+            res.status(200).send({ success:true,message: 'Successfully!', result});
+        });
+    }
+    });
+ });
+
+
 
  // Vehicle List with pagenation and filter data
 
@@ -491,5 +507,51 @@ router.post('/v1/vehiclenotassign',verify.token,verify.blacklisttoken, (req,res,
     });
   });
 
+  router.post('/v1/remappedVehicledriver',verify.token,verify.blacklisttoken, (req,res)=>{
+    jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+        if(err){
+              res.status(401).send({success:false,message:"Unauthorized Token"});             
+        }else{
+           
+           //console.log(req); return false;
+        if(req.body.vehicleId==undefined ||req.body.vehicleId==""){
+            res.status(422).send({ success:false,message: 'Vehicle  is required!' });
+        }
+        else if(req.body.DriverId==undefined ||req.body.DriverId==""){
+            res.status(422).send({ success:false, message: 'DriverId  is required!' });
+        }
+         else{
+
+             vehicleCtrl.reMappedVehiclewithdriver(req.body.vehicleId,req.body.DriverId,result => {
+                res.status(201).send({success:true, message: result}); 
+            });
+              
+        }
+
+      }
+    });
+  });
+
+  router.post('/v1/vehicleStatusChange',verify.token,verify.blacklisttoken, (req,res,next)=>{
+    jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+        if(err){
+
+              res.status(401).send({success:false,message:"Unauthorized Token"});       
+         
+        }else{
+            if(req.body.vid==undefined ||req.body.vid==""){
+                res.status(422).send({ success:false,message: 'Vehicle ID is required!' });
+            }
+        //    else if(req.body.status==undefined ||req.body.status==""){
+        //         res.status(422).send({ success:false,message: 'Status is required!' });
+        //     }
+            else{
+                vehicleCtrl.VehiclesStatusChange(req.body.vid,req.body.status,result => {
+                    res.status(200).send({ success:true,message: 'Successfully!', result});
+                });
+            }
+    }
+    });
+ });
 
 module.exports = router;
