@@ -15,7 +15,7 @@ var vehicles = {
                     db.query('SELECT count(*) as total FROM vehicles where vehicles.status='+status,function(error,data) {
                         if (error) throw error;                
                         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
-                        db.query('SELECT vehicles.id,vehicles.vehicle_rc,vehicles.model_name,vehicles.status,vehicles.available_status,drivers.name,drivers.mobile_no,drivers.driver_image, IFNULL(mapping_vehicle_drivers.status,2) as Currentstatus FROM `vehicles` LEFT JOIN mapping_vehicle_drivers ON (vehicles.id = mapping_vehicle_drivers.vehicle_id) LEFT JOIN drivers ON (mapping_vehicle_drivers.driver_id = drivers.id) where vehicles.status='+status+' GROUP by vehicles.id LIMIT '+start_index+', '+items_per_page, function (error, results) {
+                        db.query('SELECT vehicles.id,vehicles.vehicle_rc,vehicles.model_name,vehicles.status,vehicles.available_status,IFNULL(drivers.name,"NA") as name,drivers.mobile_no,drivers.driver_image, IFNULL(mapping_vehicle_drivers.status,2) as Currentstatus FROM `vehicles` LEFT JOIN mapping_vehicle_drivers ON (vehicles.id = mapping_vehicle_drivers.vehicle_id) LEFT JOIN drivers ON (mapping_vehicle_drivers.driver_id = drivers.id) where vehicles.status='+status+' GROUP by vehicles.id LIMIT '+start_index+', '+items_per_page, function (error, results) {
                             if (error) {
                             callback(error,null);
                             }
@@ -35,7 +35,7 @@ var vehicles = {
                     db.query('SELECT count(*) as total FROM vehicles where vehicles.available_status='+avablitystatus,function(error,data) {
                         if (error) throw error;                
                         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
-                        db.query('SELECT vehicles.id,vehicles.vehicle_rc,vehicles.model_name,vehicles.status,vehicles.available_status,drivers.name,drivers.mobile_no,drivers.driver_image, IFNULL(mapping_vehicle_drivers.status,2) as Currentstatus FROM `vehicles` LEFT JOIN mapping_vehicle_drivers ON (vehicles.id = mapping_vehicle_drivers.vehicle_id) LEFT JOIN drivers ON (mapping_vehicle_drivers.driver_id = drivers.id) where vehicles.available_status='+avablitystatus+' GROUP by vehicles.id LIMIT '+start_index+', '+items_per_page, function (error, results) {
+                        db.query('SELECT vehicles.id,vehicles.vehicle_rc,vehicles.model_name,vehicles.status,vehicles.available_status,IFNULL(drivers.name,"NA") as name,drivers.mobile_no,drivers.driver_image, IFNULL(mapping_vehicle_drivers.status,2) as Currentstatus FROM `vehicles` LEFT JOIN mapping_vehicle_drivers ON (vehicles.id = mapping_vehicle_drivers.vehicle_id) LEFT JOIN drivers ON (mapping_vehicle_drivers.driver_id = drivers.id) where vehicles.available_status='+avablitystatus+' GROUP by vehicles.id LIMIT '+start_index+', '+items_per_page, function (error, results) {
                             if (error) {
                             callback(error,null);
                             }
@@ -55,7 +55,7 @@ var vehicles = {
                     db.query('SELECT count(*) as total FROM vehicles',function(error,data) {
                         if (error) throw error;                
                         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
-                        db.query('SELECT vehicles.id,vehicles.vehicle_rc,vehicles.model_name,vehicles.status,vehicles.available_status,drivers.name,drivers.mobile_no,drivers.driver_image, IFNULL(mapping_vehicle_drivers.status,2) as Currentstatus FROM `vehicles` LEFT JOIN mapping_vehicle_drivers ON (vehicles.id = mapping_vehicle_drivers.vehicle_id) LEFT JOIN drivers ON (mapping_vehicle_drivers.driver_id = drivers.id) GROUP by vehicles.id LIMIT '+start_index+', '+items_per_page, function (error, results) {
+                        db.query('SELECT vehicles.id,vehicles.vehicle_rc,vehicles.model_name,vehicles.status,vehicles.available_status,IFNULL(drivers.name,"NA") as name,drivers.mobile_no,drivers.driver_image, IFNULL(mapping_vehicle_drivers.status,2) as Currentstatus FROM `vehicles` LEFT JOIN mapping_vehicle_drivers ON (vehicles.id = mapping_vehicle_drivers.vehicle_id) LEFT JOIN drivers ON (mapping_vehicle_drivers.driver_id = drivers.id) GROUP by vehicles.id LIMIT '+start_index+', '+items_per_page, function (error, results) {
                             if (error) {
                             callback(error,null);
                             }

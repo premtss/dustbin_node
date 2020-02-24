@@ -587,7 +587,7 @@ else if(dataper!=="" && wid==""){
                                         vehiclesTotal:vehiclesCount[0].Vtotal,
                                         driversTotal:driversCount[0].Drtotal,
                                         todaypicup:todaypicupCount.length,
-                                        allpicup:allCount.length,
+                                        allpicup:allCount[0].allpicup,
                                         googleDustbinMapMarker:results,
                                         googleWarehouseMapMarker:warehouseresults,
                                         todaypicuplist:groupresults
