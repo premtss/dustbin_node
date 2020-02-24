@@ -4,7 +4,13 @@ const googleMapsClient = require('@google/maps').createClient({
     key: 'AIzaSyCntPB-qN_-K60eVMgJkJEy8Dn2ZxvxC6Y',
     Promise: Promise
   });
-
+  var momentzone = require('moment-timezone');
+  var date = require('date-and-time');
+  var now = new Date();
+  date.setLocales('en', {
+      A: ['AM', 'PM']
+  });
+  momentzone.tz.setDefault("Asia/Dubai");
  //create class
  var dustbin = {
  
@@ -113,7 +119,6 @@ const googleMapsClient = require('@google/maps').createClient({
     });
     },
 
-
     dustbinfiltertype:function(callback){
         //  WHERE dustbins.data_percentage > 61
         var sqlquery ="SELECT dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id WHERE dustbins.id not in(select did from assign_group_vehicle) and dustbins.data_percentage>60";
@@ -209,9 +214,6 @@ else if(dataper!=="" && wid==""){
         
     },
 
-
-
-
     dustbinfiltertypeSocket:function(callback){
         //  WHERE dustbins.data_percentage > 61
         var sqlquery ="SELECT dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id";
@@ -226,9 +228,7 @@ else if(dataper!=="" && wid==""){
         }
     });
     },
-
-
-    
+  
     dustbinfiltertypeSocket2:function(callback){
         //  WHERE dustbins.data_percentage > 61
         var sqlquery ="SELECT dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id";
@@ -281,8 +281,7 @@ else if(dataper!=="" && wid==""){
                         }
                 });
      
-        },
-
+     },
 
     updateavlableVehicle:function(vid,status,callback){
 
@@ -334,7 +333,6 @@ else if(dataper!=="" && wid==""){
 
      },
 
-
      updateavlablegroupDustbin:function(vid,callback){
 
         var sqlquery = "UPDATE assign_group_vehicle set status=0 WHERE vid = ?";
@@ -360,8 +358,6 @@ else if(dataper!=="" && wid==""){
         }
         });
      },
-
-
 
     dustbinGroupData:function(callback){
         //  WHERE dustbins.data_percentage > 61
@@ -406,7 +402,6 @@ else if(dataper!=="" && wid==""){
         }
     });
     },
-
 
     dustbinGroupDataHistory:function(limit,offset,callback){
         //  WHERE dustbins.data_percentage > 61
@@ -511,7 +506,6 @@ else if(dataper!=="" && wid==""){
    
     },
 
-
     dustbinGroupSingleData:function(groupID,callback){
         //  WHERE dustbins.data_percentage > 61
         var sqlquery ="SELECT drivers.name as drivername,drivers.mobile_no,drivers.driver_image, vehicles.id as vehicleID,vehicles.model_name as modelName,vehicles.vehicle_rc, assign_group_vehicle.groupid as GroupName, assign_group_vehicle.status as Groupstatus, assign_group_vehicle.assigndate,assign_group_vehicle.dustbindatapercentage,dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.groupid='"+groupID+"'";
@@ -525,7 +519,6 @@ else if(dataper!=="" && wid==""){
          }
         });
     },
-
 
     updateDustbindata:function(per,number,callback){
 
@@ -610,7 +603,6 @@ else if(dataper!=="" && wid==""){
 
         });
      },
-
 
      getAlldustbinsHistory:function(limit,offset,selectdate,wid,dataperfrom,callback){
         var current_page = limit || 1;
@@ -762,9 +754,6 @@ else if(dataper!=="" && wid==""){
       
     },
 
-
-
-
     vehicleAutoAvaliblePerWarehouse:function(wid,callback){
               db.query('SELECT assign_group_vehicle.groupid, warehouse_mapped_vehicles.warehouse_Id,vehicles.id as vehicleID, vehicles.capacity, vehicles.model_name,vehicles.mgf_year,drivers.name as Drivername,drivers.mobile_no,vehicles.vehicle_rc,drivers.driver_image,drivers.id as DriverID,vehicles.id as VehicleID FROM vehicles LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id LEFT JOIN assign_group_vehicle on assign_group_vehicle.wid=warehouse_mapped_vehicles.warehouse_Id WHERE warehouse_mapped_vehicles.warehouse_Id=? and vehicles.available_status=0 and vehicles.status=1 and drivers.status=1 and drivers.driverAblible=0',[wid], function (error, results) {
                 if (error) {
@@ -807,7 +796,7 @@ else if(dataper!=="" && wid==""){
 
     Driveravaviltyhistory:function(driverid,status,callback){
         //insert into driver_histroys(driver_histroys.driver_id,driver_histroys.avilable_time,driver_histroys.avilable_date) VALUES(1,CURRENT_TIME(),CURRENT_DATE())
-        var sqlquery="INSERT INTO driver_histroys(`driver_id`,`avilable_time`,`avilable_date`,status) VALUES ('"+driverid+"',CURRENT_TIME(),CURRENT_DATE(),'"+status+"')";
+        var sqlquery="INSERT INTO driver_histroys(`driver_id`,`avilable_time`,`avilable_date`,status) VALUES ('"+driverid+"','"+momentzone().format('hh:mm:ss A').toLocaleString('en-IN',{timeZone: "Asia/Dubai"})+"','"+date.format(now, 'DD MMM YYYY')+"','"+status+"')";
                  db.query(sqlquery, function (error,result) {
                      if (error) {
                      callback(error,null);
@@ -817,8 +806,7 @@ else if(dataper!=="" && wid==""){
                  }
          });
 
- },
-
+   },
 
     reAssignVehiclePicupID:function(groupID,vid,callback){
 

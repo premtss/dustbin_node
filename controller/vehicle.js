@@ -221,7 +221,7 @@ var vehicles = {
             }
          // console.log(DriverId);
          // console.log(vehicleId);
-            if(result.length==1 && result[0].driverAblible==0){
+            if(result.length==1 && result[0].driverAblible==0 || result.length==1 && result[0].driverAblible==1){
              //   console.log("jjjjjjjj");
                 var sqlquery11="update mapping_vehicle_drivers set status=0 where id=?";
                 db.query(sqlquery11,[result[0].id], function (error,result) {
@@ -244,9 +244,9 @@ var vehicles = {
 
       
             }
-            else if(result.length==1 && result[0].driverAblible==1){
+            else if(result.length==1 && result[0].driverAblible==2){
                 //console.log("jjjjjjjj111");
-                callback('Not assign because PicupID on going!!',null);
+                callback('Not assign!Because Picup on going!!',null);
             }
       
             else{
@@ -318,7 +318,7 @@ VehiclesStatusChange:function(vid,status,callback){
                  });
 
                   }else{
-                    callback('Vehicle not Active or Inactive, Because Vehicle is alredy assigned PicupID!',null);
+                    callback('Vehicle Active or Inactive! Because Vehicle is alredy assigned Picup!',null);
                   }
             }
          });

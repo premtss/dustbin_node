@@ -634,14 +634,10 @@ router.put('/v1/updateDriver',verify.token,verify.blacklisttoken,upload.fields([
               res.status(401).send({success:false,message:"Unauthorized Token"});       
          
         }else{
-            console.log(req.body.status1);
-            console.log(req.body.driverID);
+           
             if(req.body.driverID==undefined ||req.body.driverID==""){
                 res.status(422).send({ success:false,message: 'driverID   is required!' });
             }
-        //    else if(req.body.status1==undefined ||req.body.status1==""){
-        //         res.status(422).send({ success:false,message: 'Status1  is required!' });
-        //     }
             else{
                 driverCtrl.DriverStatusChange(req.body.driverID,req.body.status1,result => {
                     res.status(200).send({ success:true,message: 'Successfully!', result});

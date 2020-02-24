@@ -283,11 +283,11 @@ var vehicles = {
                 });
 
                  }else{
-                   callback('Drivers not Active or Inactive, Because Drivers is alredy assigned PicupID!',null);
+                   callback('Drivers Active or Inactive, Because Drivers is alredy assigned PicupID!',null);
                  }
            }
         });
-},
+        },
 
 
 
