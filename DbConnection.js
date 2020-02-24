@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 require("dotenv").config();
 const con = mysql.createConnection({
-  host: "192.168.0.126",
+  host: "localhost",
   user: "shuny",
   password: "shun@DBGur34567",
   database: "smart_dustbin"
