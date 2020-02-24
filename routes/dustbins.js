@@ -147,6 +147,13 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
     });
  });
 
+ function removeDuplicates(array, key) {
+    return array.filter((obj, index, self) =>
+        index === self.findIndex((el) => (
+            el[key] === obj[key]
+        ))
+    )
+}
 
  router.post('/v1/dustbinpickup',verify.token,verify.blacklisttoken, (req,res,next)=>{
     jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
@@ -156,29 +163,29 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
         }else{
             var wid=req.body.wid || "";
             var dataperfrom=req.body.dataperfrom || "";
-            dustbinCtrl.dustbinfiltertypenew(req.body.page,req.body.perpage,wid,dataperfrom,result => { 
-            
+            dustbinCtrl.dustbinfiltertypenew(req.body.page,req.body.perpage,wid,dataperfrom,result => {           
                 var dataa=[];
-                var vehicleData=[];
-              //  setTimeout(function () { 
-                for(var i=0; i<result.data.length; i++){ 
+                var removearr=[];
                
-                   dustbinCtrl.vehicleAvaliblePerWarehouseCount(result.data[i].warehouse_id, dresult => {   
-                       vehicleData.push(dresult);     
-                    });
-                                 
+                for(var i=0; i<result.data.length; i++){           
+                                  
                     googleMap(result.data[i].id,result.data[i].warehouse_id,result.data[i].name,result.data[i].wname,result.data[i].latiude,result.data[i].longitude,result.data[i].address,result.data[i].status,result.data[i].gsm_moblie_number,result.data[i].data_percentage,result.data[i].warelatitude,result.data[i].warelongitute,result.data[i].warehouseaddress,call=>{                     
                       dataa.push(call);
+                      dustbinCtrl.vehicleAvaliblePerWarehouseCount(result.data[i].warehouse_id, dresult => {           
+                          removearr.push(dresult);         
+                        });  
                     });  
                
                 }
-           // },100); 
-                 setTimeout(function () { 
-                    
+                var vehicleData=[];
+                var dustbinData=[];
+                
+                setTimeout(function () {        
+                     vehicleData=removeDuplicates(removearr,'warehouse_Id');   
                       const grouping = _.groupBy(dataa, function(element){
                         return element.warehouseaddress;
                      });
-                    const dustbinData = _.map(grouping, (items, warehouse) => ({
+                     dustbinData = _.map(grouping,(items, warehouse)=>({
                             warehouseaddress: warehouse,
                             warehousename:items[0].wname,
                             NoofDustbin: items.length,
@@ -186,9 +193,20 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
                             WareHouseId:items[0].warehouse_id,
                             data: items
                     }));
-
-                   res.status(200).send({ success:true,message: 'Successfully!', dustbinData,totalpage:result.totalpage,totalrecoard:result.totalrecoard,vehicleData});
-                  },1000) ;
+                        
+                    res.status(200).send({ success:true,message: 'Successfully!', dustbinData,totalpage:result.totalpage,totalrecoard:result.totalrecoard});
+                },1000) ;
+                // setTimeout(function () { 
+                // for(var x=0;x<vehicleData.length;x++){
+                          
+                //     if(dustbinData[x].WareHouseId==vehicleData[x].warehouse_Id){
+                //         console.log(dustbinData[x].WareHouseId,"==>",vehicleData[x].avabileVehicle);
+                //         dustbinData[x]["ooo"]=vehicleData[x].avabileVehicle;
+                        
+                //     }
+                // }
+               
+          //  },2500) ;
 
 
             });

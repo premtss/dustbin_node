@@ -151,13 +151,18 @@ const googleMapsClient = require('@google/maps').createClient({
         //  var sqlquery ="SELECT drivers.name as drivername,drivers.mobile_no,drivers.driver_image, vehicles.id as vehicleID,vehicles.model_name as modelName,vehicles.vehicle_rc,assign_group_vehicle.status as Groupstatus, assign_group_vehicle.groupid as GroupName,assign_group_vehicle.assigndate, dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.status=0 LIMIT ?,?";
           db.query(sqlquery1,[wid],function (error, results) {
               if (error) throw error;  
-              else{                             
+              else{  
+                              
                   var obj={
                       data:results,
                       totalpage:parseInt(total_pages),
                       totalrecoard:parseInt(data[0].total)
                   }
+
                       callback(obj,null);
+
+
+
               }
       });
 
@@ -198,14 +203,31 @@ else if(dataper!=="" && wid==""){
         //  var sqlquery ="SELECT drivers.name as drivername,drivers.mobile_no,drivers.driver_image, vehicles.id as vehicleID,vehicles.model_name as modelName,vehicles.vehicle_rc,assign_group_vehicle.status as Groupstatus, assign_group_vehicle.groupid as GroupName,assign_group_vehicle.assigndate, dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.status=0 LIMIT ?,?";
           db.query(sqlquery3, function (error, results) {
               if (error) throw error;  
-              else{                             
+              else{ 
+                // var sqlquery4 ="SELECT count(*) as total FROM vehicles LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE warehouse_mapped_vehicles.warehouse_Id in (SELECT warehouses.id FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id WHERE dustbins.id not in(select did from assign_group_vehicle) GROUP by warehouses.id) and vehicles.available_status=1 and vehicles.status=1 and drivers.status=1 and drivers.driverAblible=1";
+            
+                // db.query(sqlquery4, function (error, avabileVehicle) {
+                //     if (error) throw error;  
+                //     else{ 
+                //         var sqlquery5 ="SELECT count(*) as total FROM vehicles LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE warehouse_mapped_vehicles.warehouse_Id not in (SELECT warehouses.id FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id WHERE dustbins.id not in(select did from assign_group_vehicle) GROUP by warehouses.id) and vehicles.available_status=1 and vehicles.status=1 and drivers.status=1 and drivers.driverAblible=1";
+            
+                //         db.query(sqlquery5, function (error, notavabileVehicle) {
+                //             if (error) throw error;  
+                //             else{ 
+                        
                   var obj={
                       data:results,
+                     // avavibleVehicle:avabileVehicle[0].total,
+                     // notavavibleVehicle:notavabileVehicle[0].total,
                       totalpage:parseInt(total_pages),
                       totalrecoard:parseInt(data[0].total)
                   }
                       callback(obj,null);
-              }
+                // }
+            //     });  
+            //     }
+            //  });
+        }
       });
 
     });
@@ -550,7 +572,7 @@ else if(dataper!=="" && wid==""){
                     if (error) throw error; 
                     db.query('SELECT count(*) as Drtotal FROM `drivers`',function(error,driversCount) {
                         if (error) throw error; 
-                        var sqlquery ="SELECT assign_group_vehicle.id FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.status=1 and DATE(assign_group_vehicle.assigndate)=CURDATE()";
+                        var sqlquery ="SELECT assign_group_vehicle.groupid as todaypickup FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.status=1 and DATE(assign_group_vehicle.assigndate)=CURDATE() GROUP BY assign_group_vehicle.groupid";
                         db.query(sqlquery, function (error, todaypicupCount) {
 
                             if (error) throw error;
@@ -736,17 +758,26 @@ else if(dataper!=="" && wid==""){
 
     vehicleAvaliblePerWarehouseCount:function(wid,callback){ 
               
-        db.query('SELECT count(*) as total FROM vehicles LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE warehouse_mapped_vehicles.warehouse_Id=? and vehicles.available_status=0 and vehicles.status=1 and drivers.status=1 and drivers.driverAblible=0',[wid],function(error,data1) {
+        db.query('SELECT count(*) as total FROM vehicles LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE warehouse_mapped_vehicles.warehouse_Id=? and vehicles.available_status=1 and vehicles.status=1',[wid],function(error,data1) {
             if (error) throw error;                
-            db.query('SELECT count(*) as total FROM vehicles LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE warehouse_mapped_vehicles.warehouse_Id=? and vehicles.available_status=1 and vehicles.status=1 and drivers.status=1 and drivers.driverAblible=1',[wid],function(error,data) {
+            db.query('SELECT COUNT(*) as total FROM vehicles LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE warehouse_mapped_vehicles.warehouse_Id=? and vehicles.available_status=0 and vehicles.status=1',[wid],function(error,data) {
                 if (error) throw error;                
-             
+             if(data1.length>0){
                 var obj={
-                    avabileVehicle:data1[0].total,
-                    notavabileVehicle:data[0].total,
+                    avabileVehicle:data[0].total,
+                    notavabileVehicle:data1[0].total,
                     warehouse_Id:wid
                     
                 }
+             }else{
+                var obj={
+                    avabileVehicle:0,
+                    notavabileVehicle:0,
+                    warehouse_Id:wid
+                    
+                }
+             }
+              
                 callback(obj,null);
             });
            
