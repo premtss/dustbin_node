@@ -7,9 +7,9 @@ const googleMapsClient = require('@google/maps').createClient({
   var momentzone = require('moment-timezone');
   var date = require('date-and-time');
   var now = new Date();
-  date.setLocales('en', {
-      A: ['AM', 'PM']
-  });
+//   date.setLocales('en', {
+//       A: ['AM', 'PM']
+//   });
   momentzone.tz.setDefault("Asia/Dubai");
  //create class
  var dustbin = {
