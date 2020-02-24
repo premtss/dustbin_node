@@ -6,7 +6,6 @@ const con = mysql.createConnection({
   password: "shun@DBGur34567",
   database: "smart_dustbin"
 });
-
 con.connect(function(err) {
   if (err) throw err;
   console.log("Connected!");
