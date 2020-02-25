@@ -164,25 +164,14 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
             var wid=req.body.wid || "";
             var dataperfrom=req.body.dataperfrom || "";
             dustbinCtrl.dustbinfiltertypenew(req.body.page,req.body.perpage,wid,dataperfrom,result => {           
-                var dataa=[];
-                var removearr=[];
-               
-                for(var i=0; i<result.data.length; i++){           
-                    dustbinCtrl.vehicleAvaliblePerWarehouseCount(result.data[i].warehouse_id, dresult => {           
-                        removearr.push(dresult);         
-                      });          
-                    googleMap(result.data[i].id,result.data[i].warehouse_id,result.data[i].name,result.data[i].wname,result.data[i].latiude,result.data[i].longitude,result.data[i].address,result.data[i].status,result.data[i].gsm_moblie_number,result.data[i].data_percentage,result.data[i].warelatitude,result.data[i].warelongitute,result.data[i].warehouseaddress,call=>{                     
-                      dataa.push(call);
-                        
+                var dataa=[];  
+                for(var i=0; i<result.data.length; i++){                                   
+                    googleMap(result.data[i].id,result.data[i].warehouse_id,result.data[i].name,result.data[i].wname,result.data[i].latiude,result.data[i].longitude,result.data[i].address,result.data[i].status,result.data[i].gsm_moblie_number,result.data[i].data_percentage,result.data[i].warelatitude,result.data[i].warelongitute,result.data[i].warehouseaddress,result.data[i].notavabileTotal,result.data[i].avabileTotal,call=>{                     
+                      dataa.push(call);                      
                     });  
-               
                 }
-                
-                
-                setTimeout(function () {
-                    var vehicleData=[];
-                  var dustbinData=[];        
-                     vehicleData=removeDuplicates(removearr,'warehouse_Id');   
+         
+                setTimeout(function () {                
                       const grouping = _.groupBy(dataa, function(element){
                         return element.warehouseaddress;
                      });
@@ -190,24 +179,16 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
                             warehouseaddress: warehouse,
                             warehousename:items[0].wname,
                             NoofDustbin: items.length,
+                            notavabileTotal:items[0].notavabileTotal,
+                            avabileTotal:items[0].avabileTotal,
                             novehicle:Math.ceil(parseInt(items.length) / parseInt(2)),
                             WareHouseId:items[0].warehouse_id,
                             data: items
                     }));
                         
-                    res.status(200).send({ success:true,message: 'Successfully!', dustbinData,totalpage:result.totalpage,totalrecoard:result.totalrecoard,vehicleData});
+                    res.status(200).send({ success:true,message: 'Successfully!', dustbinData,totalpage:result.totalpage,totalrecoard:result.totalrecoard});
                 },1000) ;
-                // setTimeout(function () { 
-                // for(var x=0;x<vehicleData.length;x++){
-                          
-                //     if(dustbinData[x].WareHouseId==vehicleData[x].warehouse_Id){
-                //         console.log(dustbinData[x].WareHouseId,"==>",vehicleData[x].avabileVehicle);
-                //         dustbinData[x]["ooo"]=vehicleData[x].avabileVehicle;
-                        
-                //     }
-                // }
-               
-          //  },2500) ;
+ 
 
 
             });
@@ -263,7 +244,7 @@ cron.schedule('*/20 * * * * *', () => {
 
 
 
-function googleMap(id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,objData){
+function googleMap(id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,notavabileTotal,avabileTotal,objData){
     
     googleMapsClient.distanceMatrix({
         origins: {lat:warelatitude,lng:warelongitute},
@@ -287,7 +268,9 @@ function googleMap(id,warehouse_id,name,wname,latiude,longitude,address,status,g
                 "warelongitute": warelongitute,
                 "warehouseaddress": warehouseaddress,
                 "distance":response.json.rows[0].elements[0].distance.text,
-                "duration":response.json.rows[0].elements[0].duration.text
+                "duration":response.json.rows[0].elements[0].duration.text,
+                "notavabileTotal":notavabileTotal,
+                "avabileTotal":avabileTotal
              });
              return;
             // return objData;
