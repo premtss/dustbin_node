@@ -5,10 +5,10 @@ const verify=require('./common');
 const payload=require('./payload');
 const jwt=require('jsonwebtoken');
 var cron = require('node-cron');
-//AIzaSyCntPB-qN_-K60eVMgJkJEy8Dn2ZxvxC6Y
+
 var _ = require('underscore');
 const googleMapsClient = require('@google/maps').createClient({
-    key: 'sfdfdCntPB-qfdgfkJEy8Dn2ZxvxC6Y',
+    key: 'AJzaSyCntPB-qN_-K60eVMgJkJEy8Dn2ZxvxC6Y',
     Promise: Promise
   });
   module.exports=function(deviceKey,io){
@@ -159,8 +159,9 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
             var dataperfrom=req.body.dataperfrom || "";
             dustbinCtrl.dustbinfiltertypenew(req.body.page,req.body.perpage,wid,dataperfrom,result => {           
                 var dataa=[];  
-                for(var i=0; i<result.data.length; i++){                                   
-                    groupnew(result.data[i].id,result.data[i].warehouse_id,result.data[i].name,result.data[i].wname,result.data[i].address,result.data[i].status,result.data[i].gsm_moblie_number,result.data[i].data_percentage,result.data[i].warehouseaddress,result.data[i].notavabileTotal,result.data[i].avabileTotal,call=>{                     
+                for(var i=0; i<result.data.length; i++){   
+                    //remove googleMap                                
+                    groupMap(result.data[i].id,result.data[i].warehouse_id,result.data[i].name,result.data[i].wname,result.data[i].latiude,result.data[i].longitude,result.data[i].address,result.data[i].status,result.data[i].gsm_moblie_number,result.data[i].data_percentage,result.data[i].warelatitude,result.data[i].warelongitute,result.data[i].warehouseaddress,result.data[i].notavabileTotal,result.data[i].avabileTotal,call=>{                     
                       dataa.push(call);                      
                     });  
                 }
@@ -192,24 +193,24 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
  });
 
 
-// cron.schedule('*/20 * * * * *', () => {
-//    // console.log('running every minute to 1 from 5');
-//     dustbinCtrl.dustbinfiltertypeSocket(result => { 
+cron.schedule('*/20 * * * * *', () => {
+   // console.log('running every minute to 1 from 5');
+    dustbinCtrl.dustbinfiltertypeSocket(result => { 
 
-//         const grouping = _.groupBy(result, function(element){
-//           return element.warehouseaddress;
-//        });
-//        const  dustbinData = _.map(grouping, (items, warehouse) => ({
-//               warehouseaddress: warehouse,
-//               warehousename:items[0].wname,
-//               NoofDustbin: items.length,
-//               novehicle:Math.ceil(parseInt(items.length) / parseInt(2)),
-//               WareHouseId:items[0].warehouse_id,
-//               data: items
-//       }));
-//       io.sockets.emit('dustbinpickup1', dustbinData);
-//     });
-//   });
+        const grouping = _.groupBy(result, function(element){
+          return element.warehouseaddress;
+       });
+       const  dustbinData = _.map(grouping, (items, warehouse) => ({
+              warehouseaddress: warehouse,
+              warehousename:items[0].wname,
+              NoofDustbin: items.length,
+              novehicle:Math.ceil(parseInt(items.length) / parseInt(2)),
+              WareHouseId:items[0].warehouse_id,
+              data: items
+      }));
+      io.sockets.emit('dustbinpickup1', dustbinData);
+    });
+  });
 
 //   cron.schedule('* * * * * *', () => {
 //     // console.log('running every minute to 1 from 5');
@@ -236,32 +237,8 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
 
 //    });
 
-function groupnew(id,warehouse_id,name,wname,address,status,gsm_moblie_number,data_percentage,warehouseaddress,notavabileTotal,avabileTotal,objData){
 
-        objData({
-                "id":id,
-                "warehouse_id": warehouse_id,
-                "name": name,
-                "wname":wname,
-                "latiude":longitude,
-                "longitude": longitude,
-                "address": address,
-                "status": status,
-                "gsm_moblie_number": gsm_moblie_number,
-                "data_percentage": data_percentage,  
-                "warelatitude": warelatitude,
-                "warelongitute": warelongitute,
-                "warehouseaddress": warehouseaddress,
-                "distance":response.json.rows[0].elements[0].distance.text,
-                "duration":response.json.rows[0].elements[0].duration.text,
-                "notavabileTotal":notavabileTotal,
-                "avabileTotal":avabileTotal
-            });
-            return;
-            
-     
-}
-
+//Not Use Yet
     function googleMap(id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,notavabileTotal,avabileTotal,objData){
         
         googleMapsClient.distanceMatrix({
@@ -276,7 +253,7 @@ function groupnew(id,warehouse_id,name,wname,address,status,gsm_moblie_number,da
                     "warehouse_id": warehouse_id,
                     "name": name,
                     "wname":wname,
-                    "latiude":longitude,
+                    "latiude":latiude,
                     "longitude": longitude,
                     "address": address,
                     "status": status,
@@ -297,6 +274,31 @@ function groupnew(id,warehouse_id,name,wname,address,status,gsm_moblie_number,da
         });
         
     
+    }
+
+    function groupMap(id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,notavabileTotal,avabileTotal,objData){
+    
+            objData({
+                    "id":id,
+                    "warehouse_id": warehouse_id,
+                    "name": name,
+                    "wname":wname,
+                    "latiude":latiude,
+                    "longitude": longitude,
+                    "address": address,
+                    "status": status,
+                    "gsm_moblie_number": gsm_moblie_number,
+                    "data_percentage": data_percentage,  
+                    "warelatitude": warelatitude,
+                    "warelongitute": warelongitute,
+                    "warehouseaddress": warehouseaddress,
+                    "distance":"Google API Not Valid",
+                    "duration":"Google API Not Valid",
+                    "notavabileTotal":notavabileTotal,
+                    "avabileTotal":avabileTotal
+                });
+                return;
+          
     }
 
 //Assign Vehicle Data in Group
@@ -502,140 +504,140 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
  });
 
 
-    //  cron.schedule('* * * * *', () => {
-    //   //console.log("kkkkk");
-    // var finalData=[];
-    // var WareHouseData=[];
-    // dustbinCtrl.dustbinGroupDataNew(result => {    
-    //    const grouping = _.groupBy(result, function(element){
-    //                         return element.GroupName;
-    //           });
-    //         const dustbinData = _.map(grouping, (items, groupName) => ({
-    //                             Groupstatus:items[0].Groupstatus,
-    //                             groupName:groupName, 
-    //                             vehicleID:items[0].vehicleID,
-    //                             warehousename:items[0].wname,
-    //                             warehouseaddress: items[0].warehouseaddress,   
-    //                             datacount: items.length,
-    //                             dataassignDate:items[0].assigndate,
-    //                             Drivername:"NA",
-    //                             DriverPhoto:"NA",
-    //                             Drivermobile:"NA",
-    //                             VehicleName:"NA",
-    //                             VehicleRC:"NA",
-    //                             warehouseID:items[0].warehouse_id,
-    //                             driverAblible:0
-    //              }));
+     cron.schedule('* * * * *', () => {
+      //console.log("kkkkk");
+    var finalData=[];
+    var WareHouseData=[];
+    dustbinCtrl.dustbinGroupDataNew(result => {    
+       const grouping = _.groupBy(result, function(element){
+                            return element.GroupName;
+              });
+            const dustbinData = _.map(grouping, (items, groupName) => ({
+                                Groupstatus:items[0].Groupstatus,
+                                groupName:groupName, 
+                                vehicleID:items[0].vehicleID,
+                                warehousename:items[0].wname,
+                                warehouseaddress: items[0].warehouseaddress,   
+                                datacount: items.length,
+                                dataassignDate:items[0].assigndate,
+                                Drivername:"NA",
+                                DriverPhoto:"NA",
+                                Drivermobile:"NA",
+                                VehicleName:"NA",
+                                VehicleRC:"NA",
+                                warehouseID:items[0].warehouse_id,
+                                driverAblible:0
+                 }));
                  
-    //                 for(var x=0;x<dustbinData.length;x++){         
-    //                     if(dustbinData[x].vehicleID==0){
-    //                         finalData.push(dustbinData[x]);
-    //                        WareHouseData.push({warehouseID:dustbinData[x].warehouseID,groupId:dustbinData[x].groupName,dustbincount:dustbinData[x].datacount});    
-    //                      }
-    //                  }
+                    for(var x=0;x<dustbinData.length;x++){         
+                        if(dustbinData[x].vehicleID==0){
+                            finalData.push(dustbinData[x]);
+                           WareHouseData.push({warehouseID:dustbinData[x].warehouseID,groupId:dustbinData[x].groupName,dustbincount:dustbinData[x].datacount});    
+                         }
+                     }
 
-    //                  dustbinCtrl.dustbinGroupData(results => { 
-    //                     const grouping = _.groupBy(results, function(element){
-    //                         return element.GroupName;
-    //                     });
-    //                  const dustbinData2 = _.map(grouping, (items, groupName) => ({
-    //                             Groupstatus:items[0].Groupstatus,
-    //                             groupName:groupName, 
-    //                             vehicleID:items[0].vehicleID,
-    //                             warehousename:items[0].wname,
-    //                             warehouseaddress: items[0].warehouseaddress,   
-    //                             datacount: items.length,
-    //                             dataassignDate:items[0].assigndate,
-    //                             Drivername:items[0].drivername,
-    //                             DriverPhoto:items[0].driver_image,
-    //                             Drivermobile:items[0].mobile_no,
-    //                             VehicleName:items[0].modelName,
-    //                             VehicleRC:items[0].vehicle_rc,
-    //                             warehouseID:items[0].warehouse_id,
-    //                             driverAblible:items[0].driverAblible
+                     dustbinCtrl.dustbinGroupData(results => { 
+                        const grouping = _.groupBy(results, function(element){
+                            return element.GroupName;
+                        });
+                     const dustbinData2 = _.map(grouping, (items, groupName) => ({
+                                Groupstatus:items[0].Groupstatus,
+                                groupName:groupName, 
+                                vehicleID:items[0].vehicleID,
+                                warehousename:items[0].wname,
+                                warehouseaddress: items[0].warehouseaddress,   
+                                datacount: items.length,
+                                dataassignDate:items[0].assigndate,
+                                Drivername:items[0].drivername,
+                                DriverPhoto:items[0].driver_image,
+                                Drivermobile:items[0].mobile_no,
+                                VehicleName:items[0].modelName,
+                                VehicleRC:items[0].vehicle_rc,
+                                warehouseID:items[0].warehouse_id,
+                                driverAblible:items[0].driverAblible
                           
-    //                   }));
-    //                   for(var xx=0;xx<dustbinData2.length;xx++){         
-    //                     if(dustbinData2[xx].vehicleID!==0){
-    //                         finalData.push(dustbinData2[xx]); 
-    //                     }
-    //                 }
+                      }));
+                      for(var xx=0;xx<dustbinData2.length;xx++){         
+                        if(dustbinData2[xx].vehicleID!==0){
+                            finalData.push(dustbinData2[xx]); 
+                        }
+                    }
 
-    //                 });
+                    });
 
-    //                 setTimeout(()=>{
-    //                     if(WareHouseData.length>0){
-    //                         for(var i=0;i<WareHouseData.length;i++){    
-    //                             dustbinCtrl.vehicleAutoAvaliblePerWarehouse(WareHouseData[i].warehouseID, results => {          
-    //                                  for(var ii=0;ii<WareHouseData.length;ii++){  
+                    setTimeout(()=>{
+                        if(WareHouseData.length>0){
+                            for(var i=0;i<WareHouseData.length;i++){    
+                                dustbinCtrl.vehicleAutoAvaliblePerWarehouse(WareHouseData[i].warehouseID, results => {          
+                                     for(var ii=0;ii<WareHouseData.length;ii++){  
                                    
-    //                                       if(results.length>0 && WareHouseData[ii].dustbincount <=results[0].capacity){  
-    //                                            dustbinCtrl.updateavlablevehiclegroupDustbin(results[0].vehicleID,results[0].groupid,Dataresult => {
-    //                                               dustbinCtrl.updateassignrdeVehicle(results[0].vehicleID,data=>{ 
-    //                                                    dustbinCtrl.Driveravaviltyhistory(results[0].DriverID,0,datahistory=>{      
-    //                                                    });
+                                          if(results.length>0 && WareHouseData[ii].dustbincount <=results[0].capacity){  
+                                               dustbinCtrl.updateavlablevehiclegroupDustbin(results[0].vehicleID,results[0].groupid,Dataresult => {
+                                                  dustbinCtrl.updateassignrdeVehicle(results[0].vehicleID,data=>{ 
+                                                       dustbinCtrl.Driveravaviltyhistory(results[0].DriverID,0,datahistory=>{      
+                                                       });
 
-    //                                               });
-    //                                            });
-    //                                       }
-    //                                   }
-    //                             });
+                                                  });
+                                               });
+                                          }
+                                      }
+                                });
 
-    //                         }
+                            }
 
-    //                     }
-    //                     io.sockets.emit('group_dataDustbin', finalData);
-    //                 },1500)
-    //           });
+                        }
+                        io.sockets.emit('group_dataDustbin', finalData);
+                    },1500)
+              });
    
-    //      });
+         });
 
-    //Not USE
-    // function googleMapgroup(Groupstatus,assigndate,GroupName,vehicleID,VehicleName,VehicleRC,driverName,drivermobile,driverphoto,id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,dustbindatapercentage,objData){
+//Not Use
+    function googleMapgroup(Groupstatus,assigndate,GroupName,vehicleID,VehicleName,VehicleRC,driverName,drivermobile,driverphoto,id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,dustbindatapercentage,objData){
         
-    //     googleMapsClient.distanceMatrix({
-    //         origins: {lat:warelatitude,lng:warelongitute},
-    //         destinations: {lat:latiude,lng:longitude},
-    //         mode: 'driving'
-    //     }, function (err, response){    
-    //     if (!err) {
+        googleMapsClient.distanceMatrix({
+            origins: {lat:warelatitude,lng:warelongitute},
+            destinations: {lat:latiude,lng:longitude},
+            mode: 'driving'
+        }, function (err, response){    
+        if (!err) {
     
-    //         objData({
-    //                 "Groupstatus":Groupstatus,
-    //                 "GroupName":GroupName,
-    //                 "assigndate":assigndate,
-    //                 "VehicleName":VehicleName,
-    //                 "VehicleRC":VehicleRC,
-    //                 "driverName":driverName,
-    //                 "drivermobile":drivermobile,
-    //                 "driverphoto":driverphoto,
-    //                 "vehicleID":vehicleID,
-    //                 "id":id,
-    //                 "warehouse_id": warehouse_id,
-    //                 "name": name,
-    //                 "wname":wname,
-    //                 "latiude":latiude,
-    //                 "longitude": longitude,
-    //                 "address": address,
-    //                 "status": status,
-    //                 "gsm_moblie_number": gsm_moblie_number,
-    //                 "data_percentage": data_percentage,  
-    //                 "warelatitude": warelatitude,
-    //                 "warelongitute": warelongitute,
-    //                 "warehouseaddress": warehouseaddress,
-    //                 "distance":response.json.rows[0].elements[0].distance.text,
-    //                 "duration":response.json.rows[0].elements[0].duration.text,
-    //                 "dustbindatapercentage":dustbindatapercentage
-    //             });
-    //             return;
+            objData({
+                    "Groupstatus":Groupstatus,
+                    "GroupName":GroupName,
+                    "assigndate":assigndate,
+                    "VehicleName":VehicleName,
+                    "VehicleRC":VehicleRC,
+                    "driverName":driverName,
+                    "drivermobile":drivermobile,
+                    "driverphoto":driverphoto,
+                    "vehicleID":vehicleID,
+                    "id":id,
+                    "warehouse_id": warehouse_id,
+                    "name": name,
+                    "wname":wname,
+                    "latiude":latiude,
+                    "longitude": longitude,
+                    "address": address,
+                    "status": status,
+                    "gsm_moblie_number": gsm_moblie_number,
+                    "data_percentage": data_percentage,  
+                    "warelatitude": warelatitude,
+                    "warelongitute": warelongitute,
+                    "warehouseaddress": warehouseaddress,
+                    "distance":response.json.rows[0].elements[0].distance.text,
+                    "duration":response.json.rows[0].elements[0].duration.text,
+                    "dustbindatapercentage":dustbindatapercentage
+                });
+                return;
             
-    //         }  
-    //     });
+            }  
+        });
         
     
-    // }
+    }
 
-    function googleMapgroup(Groupstatus,assigndate,GroupName,vehicleID,VehicleName,VehicleRC,driverName,drivermobile,driverphoto,id,warehouse_id,name,wname,address,status,gsm_moblie_number,data_percentage,warehouseaddress,dustbindatapercentage,objData){
+    function googleMapgroupchange(Groupstatus,assigndate,GroupName,vehicleID,VehicleName,VehicleRC,driverName,drivermobile,driverphoto,id,warehouse_id,name,wname,latiude,longitude,address,status,gsm_moblie_number,data_percentage,warelatitude,warelongitute,warehouseaddress,dustbindatapercentage,objData){
      
             objData({
                     "Groupstatus":Groupstatus,
@@ -665,8 +667,11 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                     "dustbindatapercentage":dustbindatapercentage
                 });
                 return;
+            
+           
     
     }
+
 
 
   //Complete Vehicle Data 
@@ -713,7 +718,9 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                  dustbinCtrl.dustbinGroupSingleData(req.body.groupid, result=>{
                     var dataa=[];
                     for(var i=0; i<result.length; i++){ 
-                        googleMapgroup(result[i].Groupstatus,result[i].assigndate,result[i].GroupName,result[i].vehicleID,result[i].modelName,result[i].vehicle_rc,result[i].drivername,result[i].mobile_no,result[i].driver_image,result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,result[i].dustbindatapercentage,call=>{                     
+                        //Remove googleMapgroup 
+                        
+                        googleMapgroupchange(result[i].Groupstatus,result[i].assigndate,result[i].GroupName,result[i].vehicleID,result[i].modelName,result[i].vehicle_rc,result[i].drivername,result[i].mobile_no,result[i].driver_image,result[i].id,result[i].warehouse_id,result[i].name,result[i].wname,result[i].latiude,result[i].longitude,result[i].address,result[i].status,result[i].gsm_moblie_number,result[i].data_percentage,result[i].warelatitude,result[i].warelongitute,result[i].warehouseaddress,result[i].dustbindatapercentage,call=>{                     
                           dataa.push(call);
                         });        
                     }
