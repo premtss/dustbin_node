@@ -1,7 +1,7 @@
 //include the model
 const db = require('../DbConnection'); 
 const googleMapsClient = require('@google/maps').createClient({
-    key: 'AIzaSyCntPB-qN_-K60eVMgJkJEy8Dn2ZxvxC6Y',
+    key: 'sfdfdCntPB',
     Promise: Promise
   });
   var momentzone = require('moment-timezone');
