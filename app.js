@@ -3,20 +3,18 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
 var methodOverride = require('method-override');
-
 require("dotenv").config();
 // Init App
 const app = express();
+app.set('deviceKey', 'Prem_Maurya');
 const http = require('http').Server(app); 
 const io = require('socket.io')(http);
-
 require("./DbConnection");
 //Route Define
 var admin = require('./routes/admin');
 var driver = require('./routes/drivers');
 var wherehouses = require('./routes/wherehouses');
-var dustbins = require('./routes/dustbins')(io);
-
+var dustbins = require('./routes/dustbins')(app,io);
 app.use(bodyParser.json({limit: '500000mb'}));
 app.use(bodyParser.urlencoded({limit: '500000mb', extended: true, parameterLimit: 10000000000}));
 
@@ -33,9 +31,6 @@ app.use((req, res, next)=>{
   }));
   app.use(methodOverride());
 
-  app.get("/",(req,res)=>{
-     res.sendFile("index.html")
-  });
 
 app.use('/api', admin);
 app.use('/api', driver);

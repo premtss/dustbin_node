@@ -398,7 +398,7 @@ else if(dataper!=="" && wid==""){
 
     dustbinGroupDataNew:function(callback){
         //  WHERE dustbins.data_percentage > 61
-        
+        //and DATE(assign_group_vehicle.assigndate)=CURDATE()
         var sqlquery ="SELECT assign_group_vehicle.vid as vehicleID, assign_group_vehicle.groupid as GroupName,assign_group_vehicle.status as Groupstatus,assign_group_vehicle.assigndate, dustbins.*,warehouses.name as wname,warehouses.latitude as warelatitude,warehouses.longitude as warelongitute,warehouses.address as warehouseaddress FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.status=1";
         db.query(sqlquery, function (error, results) {
             if (error) {
@@ -542,22 +542,41 @@ else if(dataper!=="" && wid==""){
         });
     },
 
-    updateDustbindata:function(per,number,callback){
+     updateDustbindata:function(obj,callback){
+        if(obj.deviceKey=="" || obj.deviceKey==undefined){
+            callback('Device Key is must!',null);
+        }else{
+            if(obj.deviceKey=="Prem_Maurya"){
+                var per=obj.data;
+                var number=obj.mobile;
+                var sqlquery = "select gsm_moblie_number from dustbins WHERE gsm_moblie_number = ?";
+                db.query(sqlquery,[number], function (error,results) {
+                    if (error) {
+                    callback(error,null);
+                    }
+                    else{                 
+                        if(results.length){
+                            var sqlquery = "UPDATE dustbins set data_percentage=? WHERE gsm_moblie_number = ?";
+                                 db.query(sqlquery,[per,number], function (error,result) {
+                                    if (error) {
+                                     callback(error,null);
+                                     }
+                                     else{ 
+                                      callback('update record!',null);
+                                    }
+                             });
+                        }
+                        else{
+                            callback('Mobile Number is not registered!',null);
+                        }
+                    }
+                });
 
-        var sqlquery = "UPDATE dustbins set data_percentage=? WHERE gsm_moblie_number = ?";
-        db.query(sqlquery,[per,number], function (error,result) {
-            if (error) {
-            callback(error,null);
-            }
-            else{ 
-                if(result){
-                    callback('update record!',null);
-                }   else{
-                    callback('Mobile Number is not registered!',null);
-                }
-            
+            }else{
+                callback('Device Key not Matched!',null);
+            } 
         }
-        });
+     
      },
 
      dashBoardData:function(callback){
@@ -928,8 +947,9 @@ else if(dataper!=="" && wid==""){
               
         }
     });
-    }
-
+    },
+   
 
 }
 module.exports = dustbin;
+

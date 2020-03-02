@@ -1,4 +1,4 @@
-const express = require('express');
+
 const db = require('../DbConnection'); 
 
 //Format of token

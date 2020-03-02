@@ -5,141 +5,171 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Dustbin</title>
+    <link rel="stylesheet" href="https://canvasjs.com/demo/dashboards/assets/bootstrap/bootstrap4-alpha3.min.css">
+		<!-- Google Font Roboto -->
+		<link rel="stylesheet" href="https://canvasjs.com/demo/dashboards/assets/fonts/font-roboto.css">
     <style>
-      /* body {  
-  background: #1D1F20;
-  padding: 16px;
-} */
+ 	body {
+				background-color: #000000;
+				color: #ffffff;
+				font-family: "Roboto", Helvetica, Arial, sans-serif;
+				font-size: 16px;
+				line-height: 1.5;
+				padding-bottom: 3.5rem;
+				padding-top: 3.5rem;
+			}
 
-canvas {
-  border: 1px dotted red;
-}
+			h1, h2, h3, h4, h5, h6 {
+				font-weight: 300;
+			}
 
-.chart-container {
-  position: relative;
-  margin: auto;
-  height: 80vh;
-  width: 80vw;
-}
+			hr {
+				border-top: 1px solid #727273;
+				margin-bottom: 2rem;
+				margin-top: 2rem;
+			}
+			
+			#revenue-tag {
+				border-radius: 0px !important;
+				font-size: inherit !important;
+				font-weight: inherit !important;
+			}
 
+			.align-center {
+				text-align: center;
+			}
+
+			.card {
+				background-color: transparent;
+				border: none;
+				margin-bottom: 0px;
+			}
+
+			#sales-doughnut-chart-us, #sales-doughnut-chart-nl, #sales-doughnut-chart-de {
+				height: 280px;
+				margin-top: 1rem;
+				width: 100%;
+			}
+
+			#page-views-spline-area-chart, #orders-spline-area-chart, #revenue-spline-area-chart {
+				height: 100px;
+				width: 100%;
+			}
+
+			#users-doughnut-chart, #users-spline-chart {
+				height: 280px; 
+				margin-top: 2rem;
+				width: 100%;
+			}
+
+			#users-countries-bar-chart {
+				height: 360px; 
+				margin-top: 2rem;
+				width: 100%;
+			}
     </style>
 </head>
 <body>
-  <select id="mySelect" onchange="myFunction()">
-    <option value="2">2</option>
-    <option value="5">5</option>
-    <option value="10">10</option>
-    <option value="15">15</option>
-  </select>
-    <h1>Welcome To Dustbin...!!</h1>
-    <div id="datalist"></div>
-    ===========================
-   
-
-
-    <!-- <div id="datalist1"></div> -->
-    <div class="chart-container">
-      <canvas id="chart"></canvas>
+  <div id="canvas-holder" style="width:15%">	
   </div>
   
-
-  
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+  <div class="container">
+   
+    <!-- sales doughnut charts -->
+    <div class="row" id="progress">	
+      <div class="col-md-12">	
+      </div>
+    </div>
+    <!-- row sales doughnt charts -->
+    
+    <hr>
+ 
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script> -->
+    <!-- <script src="http://192.168.0.150:3002/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/easy-pie-chart/2.1.6/jquery.easypiechart.min.js"></script> -->
+    
+    <script src="https://canvasjs.com/demo/dashboards/assets/jquery/jquery-3.1.0.min.js"></script>
+		<script src="https://canvasjs.com/demo/dashboards/assets/tether/tether.min.js"></script>
+		<script src="https://canvasjs.com/demo/dashboards/assets/bootstrap/bootstrap4-alpha3.min.js"></script>
+		<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+		<script src="https://canvasjs.com/demo/dashboards/assets/jquery.scrollspeed/jquery.scrollspeed.min.js"></script>
+		<script src="https://canvasjs.com/demo/dashboards/assets/jquery.inview/jquery.inview.min.js"></script>
     <script src="http://192.168.0.150:3002/socket.io/socket.io.js"></script>
 <script>
-  const socket = io('http://192.168.0.150:3002',{'forceNew':true });
-  // var page=1; var status=false;
+  
+   const socket = io('http://192.168.0.150:3002',{'forceNew':true });
+ 
     socket.on('connect',function(data) {
          console.log("Server is connected");
-       // var  record = document.getElementById("mySelect").value;
-         //socket.emit('dustbinpickup',page,record,socket.id,false);
-        // getData(socket,socket.id);
-     });
-   
-  //   function myFunction(status) {
-  //    var record = document.getElementById("mySelect").value;
-  //     console.log(record);
-  //       socket.emit('dustbinpickup',page,record,socket.id,true);
-  //       getData(socket,socket.id);
-
-  //    }
-   
-  // function getData(socket,id){
-  //   $("#datalist1").html('');
-  //  socket.on('dustbinpickup',(dataSet,id)=>{   
-  //    $("#datalist1").html('');
-  //    if(dataSet.length!=0){
-  //          for(var xxi=0;xxi<dataSet.data.length;xxi++){ 
-  //          $("#datalist1").append('<div>GSM:'+dataSet.data[xxi].gsm_moblie_number+' <span>DataPercentage:'+dataSet.data[xxi].data_percentage+'</span></div>');
-  //      }  
-  //    }
-  //  });  
-  // }
- 
-var dustbinname=[];
+    });
+    var dustbinname=[];
 var dustbinData=[];
 //var data;
-  socket.on('dustbinpickup1', (dataSet)=>{
-    dustbinname=[];
-    dustbinData=[];
+  socket.on('dustbinpickup1', (dataSet)=>{  
+    $("#progress").html('');
       if(dataSet.length!=0){
-       
         for(var x=0;x<dataSet.length;x++){
-        
+          $("#progress").append();
           for(var xx=0;xx<dataSet[x].data.length;xx++){
-            dustbinData.push(dataSet[x].data[xx].data_percentage);
-            dustbinname.push(dataSet[x].data[xx].gsm_moblie_number);
+         
+            getAll(dataSet[x].data[xx].data_percentage,xx,x,dataSet[x].data[xx].gsm_moblie_number)
            }
         }
-        GetAll(dustbinname,dustbinData)
       }
-
-      
     });
-    function GetAll(Name,Data) 
-    {
-      var data = {
-  labels: Name,
-  datasets: [{
-    label: "Dataset #1",
-    backgroundColor: "rgba(255,99,132,0.2)",
-    borderColor: "rgba(255,99,132,1)",
-    borderWidth: 2,
-    hoverBackgroundColor: "rgba(255,99,132,0.4)",
-    hoverBorderColor: "rgba(255,99,132,1)",
-    data: Data,
-  }]
-};
- 
-var options = {
-  maintainAspectRatio: false,
-  scales: {
-    yAxes: [{
-      stacked: true,
-      gridLines: {
-        display: true,
-        color: "rgba(255,99,132,0.2)"
-      }
-    }],
-    xAxes: [{
-      gridLines: {
-        display: false
-      }
-    }]
-  }
-};
 
-Chart.Bar('chart', {
-  options: options,
-  data: data
-});
+    function getAll(data,id,ids,name)
+    {  
+      $("#progress").append('<div class="col-md-4"><div id="doughnut'+id+ids+'" class="inview"></div><h3 class="align-center">'+name+'</h3></div>');
+    	var salesDoughnutChartUS = new CanvasJS.Chart("doughnut"+id+ids, { 
+					animationEnabled: true,
+					backgroundColor: "transparent",
+					title: {
+						fontColor: "#848484",
+						fontSize: 70,
+						horizontalAlign: "center",
+						text: data+"%",
+						verticalAlign: "center"
+					},
+					toolTip: {
+						backgroundColor: "#ffffff",
+						borderThickness: 0,
+						cornerRadius: 0,
+						fontColor: "#424242"
+					},
+					data: [
+						{
+							explodeOnClick: false,
+							innerRadius: "100%",
+							radius: "100%",
+							startAngle: 100,
+							type: "doughnut",
+							dataPoints: [
+								{ y: 47, color: "#c70000", toolTipContent: ""+name+": $<span>" + CanvasJS.formatNumber(data, '#,###,###') + "</span>" },
+								{ y: 53, color: "#424242", toolTipContent: null }
+							]
+						}
+					]
+				});
 
-      }
- console.log(dustbinname);
+		
+				jQuery.scrollSpeed(100, 400); 
+        salesDoughnutChartUS.render();
+				// $('.inview').one('inview', function (e, isInView) {
+				// 	if (isInView) {
+				// 		switch (this.id) {
+				// 			case "doughnut"+id+"": salesDoughnutChartUS.render();
+				// 				break;
+				// 		}
+				// 	}
+				// });
+		
+			
+    }  
   
 
-
 </script>
+
 </body>
 </html>
