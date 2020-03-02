@@ -75,9 +75,6 @@ var vehicles = {
             
     },
 
-
-
-
     VehiclesNotAssigned: function (limit, offset, callback) {
         var current_page = limit || 1;
         var items_per_page = offset || 10;
