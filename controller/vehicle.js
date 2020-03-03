@@ -295,6 +295,34 @@ getAllVehiclesforAssign:function(limit,offset,callback){
 
 },
 
+getAllVehiclesforAssignList:function(limit,offset,callback){
+
+    var current_page = limit || 1;
+    var items_per_page = offset || 10;
+    var start_index = (current_page - 1) * items_per_page;
+    
+        db.query('SELECT vehicles.model_name,vehicles.mgf_year, vehicles.capacity, vehicles.vehicle_rc,vehicles.id as VehicleID FROM  vehicles WHERE vehicles.id IN (SELECT mapping_vehicle_drivers.driver_id FROM mapping_vehicle_drivers)',function(error,data) {
+            if (error) throw error;      
+                     // console.log(data);
+            var total_pages = Math.ceil(parseInt(data.length) / parseInt(offset));
+            db.query("SELECT vehicles.model_name,vehicles.mgf_year, vehicles.capacity, vehicles.vehicle_rc,vehicles.id as VehicleID FROM  vehicles WHERE vehicles.id IN (SELECT mapping_vehicle_drivers.driver_id FROM mapping_vehicle_drivers) LIMIT "+start_index+','+items_per_page, function (error, results) {
+                if (error) {
+                callback(error,null);
+                }
+                else{
+                    var obj={
+                        data:results,
+                        totalpage:total_pages,
+                        totalrecoard:parseInt(data.length)
+                    }
+                callback(obj,null);
+            }
+         });
+
+        });
+
+},
+
 
 
 VehiclesStatusChange:function(vid,status,callback){

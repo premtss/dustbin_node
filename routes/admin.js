@@ -148,6 +148,21 @@ router.post('/v1/vehiclelist',verify.token,verify.blacklisttoken, (req,res,next)
     });
  });
 
+ router.post('/v1/vehiclelistforassignnew',verify.token,verify.blacklisttoken, (req,res,next)=>{
+    jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
+        if(err){
+
+              res.status(401).send({success:false,message:"Unauthorized Token"});       
+         
+        }else{
+           
+        vehicleCtrl.getAllVehiclesforAssignList(req.body.page,req.body.perpage,result => {
+            res.status(200).send({ success:true,message: 'Successfully!', result});
+        });
+    }
+    });
+ });
+
 
 
  // Vehicle List with pagenation and filter data
