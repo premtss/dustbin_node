@@ -192,8 +192,8 @@ router.post('/v1/addnewdustbin',verify.token,verify.blacklisttoken, (req,res,nex
     });
  });
 
-
-cron.schedule('*/20 * * * * *', () => {
+//*/20
+cron.schedule('* * * * *', () => {
    // console.log('running every minute to 1 from 5');
     dustbinCtrl.dustbinfiltertypeSocket(result => { 
 
@@ -662,8 +662,8 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                     "warelatitude": warelatitude,
                     "warelongitute": warelongitute,
                     "warehouseaddress": warehouseaddress,
-                    "distance":response.json.rows[0].elements[0].distance.text,
-                    "duration":response.json.rows[0].elements[0].duration.text,
+                    "distance":"Google API not Valid",
+                    "duration":"Google API not Valid",
                     "dustbindatapercentage":dustbindatapercentage
                 });
                 return;
@@ -703,16 +703,19 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
     });
 
  //Complete Vehicle Data 
+ 
 
     router.post('/v1/singleDatafetch',verify.token,verify.blacklisttoken, (req,res,next)=>{
+        
     jwt.verify(req.token,process.env.JWTTokenKey,(err,authData)=>{
         if(err){
 
               res.status(401).send({success:false,message:"Unauthorized Token"});       
         }  
         else{
+           
              if(req.body.groupid==undefined ||req.body.groupid==""){
-                res.status(422).send({ success:false,message: 'Warehouses ID  is required!' });
+                res.status(422).send({ success:false,message: 'Group ID  is required!' });
             }
             else{ 
                  dustbinCtrl.dustbinGroupSingleData(req.body.groupid, result=>{
@@ -725,7 +728,7 @@ router.post('/v1/assignVehicle',verify.token,verify.blacklisttoken, (req,res,nex
                         });        
                     }
                     setTimeout(function () { 
-
+              
                         const grouping = _.groupBy(dataa, function(element){
                             return element.GroupName;
                          });
