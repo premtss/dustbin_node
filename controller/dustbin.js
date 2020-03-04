@@ -142,7 +142,7 @@ const googleMapsClient = require('@google/maps').createClient({
          var start_index = (current_page - 1) * items_per_page;
 
         if(wid!=="" && dataper==""){
-         db.query('SELECT count(*) as total FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id WHERE dustbins.id not in(select did from assign_group_vehicle) and dustbins.warehouse_id=?',[wid],function(error,data) {
+         db.query('SELECT count(*) as total FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id WHERE dustbins.id not in(select did from assign_group_vehicle WHERE assign_group_vehicle.status=1) and dustbins.warehouse_id=?',[wid],function(error,data) {
         if (error) throw error;                
         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
 
@@ -171,7 +171,7 @@ const googleMapsClient = require('@google/maps').createClient({
     });
 }
 else if(dataper!=="" && wid==""){
-    db.query('SELECT count(*) as total FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id WHERE dustbins.id not in(select did from assign_group_vehicle) and dustbins.data_percentage BETWEEN 0 and ?',[dataper],function(error,data) {
+    db.query('SELECT count(*) as total FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id WHERE dustbins.id not in(select did from assign_group_vehicle WHERE assign_group_vehicle.status=1) and dustbins.data_percentage BETWEEN 0 and ?',[dataper],function(error,data) {
         if (error) throw error;                
         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
 
@@ -194,7 +194,7 @@ else if(dataper!=="" && wid==""){
 
     });
 }else{
-    db.query('SELECT count(*) as total FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id WHERE dustbins.id not in(select did from assign_group_vehicle)',function(error,data) {
+    db.query('SELECT count(*) as total FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id WHERE dustbins.id not in(select did from assign_group_vehicle WHERE assign_group_vehicle.status=1)',function(error,data) {
         if (error) throw error;                
         var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
 
