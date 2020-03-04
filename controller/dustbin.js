@@ -595,7 +595,7 @@ else if(dataper!=="" && wid==""){
                         db.query(sqlquery, function (error, todaypicupCount) {
 
                             if (error) throw error;
-                            var sqlquery ="SELECT count(*) as allpicup FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle) and assign_group_vehicle.status=0";
+                            var sqlquery ="SELECT warehouses.id FROM `dustbins` INNER JOIN warehouses on warehouses.id=dustbins.warehouse_id INNER JOIN assign_group_vehicle on assign_group_vehicle.did=dustbins.id INNER join vehicles on vehicles.id=assign_group_vehicle.vid INNER JOIN mapping_vehicle_drivers on assign_group_vehicle.vid=mapping_vehicle_drivers.vehicle_id INNER JOIN drivers on drivers.id=mapping_vehicle_drivers.driver_id WHERE dustbins.id in(select did from assign_group_vehicle WHERE assign_group_vehicle.status=0) GROUP BY warehouses.id";
                             db.query(sqlquery, function (error, allCount) {
                                 if (error) throw error;
 
@@ -621,7 +621,7 @@ else if(dataper!=="" && wid==""){
                                         vehiclesTotal:vehiclesCount[0].Vtotal,
                                         driversTotal:driversCount[0].Drtotal,
                                         todaypicup:todaypicupCount.length,
-                                        allpicup:allCount[0].allpicup,
+                                        allpicup:allCount.length,
                                         googleDustbinMapMarker:results,
                                         googleWarehouseMapMarker:warehouseresults,
                                         todaypicuplist:groupresults
