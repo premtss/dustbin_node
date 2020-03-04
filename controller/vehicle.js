@@ -331,7 +331,8 @@ VehiclesStatusChange:function(vid,status,callback){
                 callback(error,null);
                 }
                 else{
-                  if(results[0].available_status=0){
+                   // console.log(results[0].available_status);
+                  if(results[0].available_status==0){
 
                     var sqlquery = "UPDATE vehicles set status=? WHERE id = ?";
                      db.query(sqlquery,[status,vid], function (error,result) {
