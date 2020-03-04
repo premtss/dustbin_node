@@ -80,11 +80,11 @@ var vehicles = {
         var items_per_page = offset || 10;
         var start_index = (current_page - 1) * items_per_page;
         //remove  and vehicles.id NOT IN (SELECT mapping_vehicle_drivers.vehicle_id FROM mapping_vehicle_drivers)
-        db.query('SELECT COUNT(*) as total FROM vehicles LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id WHERE vehicles.id NOT IN (SELECT warehouse_mapped_vehicles.warehouse_Id FROM warehouse_mapped_vehicles)', function (error, data) {
+        db.query('SELECT COUNT(*) as total FROM vehicles LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id WHERE vehicles.id NOT IN (SELECT warehouse_mapped_vehicles.vehicleid FROM warehouse_mapped_vehicles)', function (error, data) {
             if (error)
                 throw error;
             var total_pages = Math.ceil(parseInt(data[0].total) / parseInt(offset));
-            db.query('SELECT vehicles.*, IFNULL(warehouse_mapped_vehicles.warehouse_Id,0) as warehouseID,IFNULL(mapping_vehicle_drivers.vehicle_id,0) as VehicleID FROM vehicles LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id WHERE vehicles.id NOT IN (SELECT warehouse_mapped_vehicles.warehouse_Id FROM warehouse_mapped_vehicles) LIMIT ' + start_index + ', ' + items_per_page + '', function (error, results) {
+            db.query('SELECT vehicles.*, IFNULL(warehouse_mapped_vehicles.warehouse_Id,0) as warehouseID,IFNULL(mapping_vehicle_drivers.vehicle_id,0) as VehicleID FROM vehicles LEFT JOIN warehouse_mapped_vehicles on warehouse_mapped_vehicles.vehicleid=vehicles.id LEFT JOIN mapping_vehicle_drivers on mapping_vehicle_drivers.vehicle_id=vehicles.id WHERE vehicles.id NOT IN (SELECT warehouse_mapped_vehicles.vehicleid FROM warehouse_mapped_vehicles) LIMIT ' + start_index + ', ' + items_per_page + '', function (error, results) {
                 if (error) {
                     callback(error, null);
                 }
