@@ -25,6 +25,6 @@
     "node-cron": "^2.0.3",
     "path": "^0.12.7",
     "socket.io": "^2.3.0",
-    "underscore": "^1.9.2"
+    "underscore": "^1.12.1"
   }
 }
